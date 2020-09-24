@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 int main(void) {
      // ввод оснований
@@ -158,3 +158,4 @@ int main(void) {
     printf("%s\n", answer);
     return 0;
 }
+
