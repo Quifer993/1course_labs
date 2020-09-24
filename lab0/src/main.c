@@ -4,7 +4,6 @@ int main(void) {
      // ввод оснований
     int first, second;
     scanf("%d %d", &first, &second);
-    char second_char = (second + '0'), first_char = (first + '0');
     //проверка оснований
     if (first < 2 || first>16 || second < 2 || second>16) {
         printf("bad input");
