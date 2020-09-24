@@ -100,16 +100,11 @@ int main(void) {
         }
 
     }
-    int length_first, length_of_second, end;
+    int length_of_second, end;
 
     //Нахождение длины числа в 10чной и b2
     char answer[62];
-    for (i = 1; i <= end_num; i++) {
-        if (pow(10, i) > num) {
-            length_first = i;
-            break;
-        }
-    }
+
     for (i = 1; i < 50; i++) {
         if (pow(second, i) > num) {
             length_of_second = i;
