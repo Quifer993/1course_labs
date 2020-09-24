@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <math.h>
-int main(void) {
-     // ввод оснований
+#pragma warning(disable : 4996)
+int main() {
+    // ввод оснований
     int first, second;
-    scanf("%d %d", &first, &second);
+    if (!(scanf("%d %d", &first, &second)))
+        return 0;
     //проверка оснований
     if (first < 2 || first>16 || second < 2 || second>16) {
         printf("bad input");
@@ -11,13 +13,14 @@ int main(void) {
     }
     //ввод числа
     char number[15];
-    scanf("%s", &number);
+    if (!(scanf("%s", &number)))
+        return 0;
     int point = 100, point_for_check = 100, end_num, i;
-    float long long num = 0;
+    long double num = 0;
     //поиск точки
     for (i = 0; i < 14; i++) {
-        if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) ||\
-           ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
+        if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || \
+            ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
             if (number[i] == '.') {
                 if (point == 100) {
                     point = i;
@@ -47,14 +50,14 @@ int main(void) {
     }
     for (i = end_num - 1; i >= 0; i--) {
         //a -> A, b -> B,..
-        if(number[i] - 'a') >= 0) {
+        if ((number[i] - 'a') >= 0) {
             number[i] = (number[i] + 'A' - 'a');
         }
         //перевод из b1 в 10чную
         if (!(i == point)) {
             if (i < point) {
                 if ((number[i] <= '9')) {
-                    if (number[i] < first_char) {
+                    if (number[i] < first + '0') {
                         num = num + (number[i] - '0') * pow(first, point - i - 1);
                     }
                     else {
@@ -76,7 +79,7 @@ int main(void) {
             }
             else {
                 if ((number[i] <= '9')) {
-                    if (number[i] < first_char) {
+                    if (number[i] < first + '0') {
                         num = num + (number[i] - '0') * pow(first, point - i);
                     }
                     else {
@@ -117,7 +120,7 @@ int main(void) {
     int long long answer10 = num / 1;
     int answer_remainder;
     end = length_of_second;
-    float long long answer10_after_point = num - answer10, answer10_after_point_int;
+    long double answer10_after_point = num - answer10, answer10_after_point_int;
     for (i = length_of_second - 1; i >= 0; i--) {
         answer_remainder = answer10 % second;
         if (answer_remainder < 10) {
@@ -158,4 +161,3 @@ int main(void) {
     printf("%s\n", answer);
     return 0;
 }
-
