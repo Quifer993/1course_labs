@@ -13,7 +13,7 @@ int main() {
     }
     //ввод числа
     char number[15];
-    if (!(scanf("13%s", &number)))
+    if (!(scanf("%13s", &number)))
         return 0;
     int point = 100, point_for_check = 100, end_num, i;
     long double num = 0;
@@ -24,7 +24,7 @@ int main() {
             if (number[i] == '.') {
                 if (point == 100) {
                     point = i;
-                    point_for_check = i;;
+                    point_for_check = i;
                 }
                 else {
                     printf("bad input");
