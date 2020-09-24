@@ -12,8 +12,8 @@ int main() {
         return 0;
     }
     //ввод числа
-    char number[15];
-    if (!(scanf("%13s", &number)))
+    char number[14];
+    if (!(scanf("%14s", &number)))
         return 0;
     int point = 100, point_for_check = 100, end_num, i;
     long double num = 0;
