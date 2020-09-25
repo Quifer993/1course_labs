@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#pragma warning(disable : 4996)
+
 int main() {
     // ввод оснований
     int first, second;
