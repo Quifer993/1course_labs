@@ -15,7 +15,7 @@ int main() {
     char number[14];
     if (!(scanf("%14s", &number)))
         return 0;
-    int point = 100, point_for_check = 100, end_num, i;
+    int point = 100, point_for_check = 100, end_num=13, i;
     long double num = 0;
     //поиск точки
     for (i = 0; i < 14; i++) {
@@ -103,7 +103,7 @@ int main() {
         }
 
     }
-    int length_of_second, end;
+    int length_of_second=0, end;
 
     //Нахождение длины числа в 10чной и b2
     char answer[62];
