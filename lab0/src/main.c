@@ -124,17 +124,14 @@ int main() {
         point_for_check = 100;
     }
     int long long answer10int = num / 1;
-    int answer_remainder;
     end = length_of_second;
     double answer10_after_point = num - answer10int;
-    int long long answer10_after_point_int;
     for (int i = length_of_second - 1; i >= 0; i--) {
-        answer_remainder = answer10int % second;
-        if (answer_remainder < 10) {
-            answer[i] = (answer_remainder + '0');
+        if (answer10int % second < 10) {
+            answer[i] = (answer10int % second + '0');
         }
         else {
-            answer[i] = (answer_remainder + '7');
+            answer[i] = (answer10int % second + '7');
         }
         answer10int = answer10int / second;
     }
@@ -153,15 +150,14 @@ int main() {
                 break;
             }
             answer10_after_point = answer10_after_point * second;
-            answer10_after_point_int = (int)answer10_after_point;
-            if (answer10_after_point_int < 10) {
-                answer[i] = (answer10_after_point_int + '0');
+            if ((int)answer10_after_point < 10) {
+                answer[i] = ((int)answer10_after_point + '0');
             }
             else {
-                answer[i] = (answer10_after_point_int + '7');
+                answer[i] = ((int)answer10_after_point + '7');
             }
             end = i;
-            answer10_after_point = answer10_after_point - answer10_after_point_int;
+            answer10_after_point = answer10_after_point - (int)answer10_after_point;
         }
     }
     answer[end] = '\0';
