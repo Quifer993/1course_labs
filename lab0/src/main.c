@@ -21,10 +21,10 @@ int main() {
         return 0;
     }
 
-    int point = 100, point_for_check = 100, end_num = 13, i;
+    int point = 100, point_for_check = 100, end_num = 13;
     long double num = 0;
     //поиск точки
-    for (i = 0; i < 14; i++) {
+    for (int i = 0; i < 14; i++) {
         if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || \
             ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
             if (number[i] == '.') {
@@ -54,7 +54,7 @@ int main() {
     if (point == 100) {
         point = end_num;
     }
-    for (i = end_num - 1; i >= 0; i--) {
+    for (int i = end_num - 1; i >= 0; i--) {
         //a -> A, b -> B,..
         if ((number[i] - 'a') >= 0) {
             number[i] = (number[i] + 'A' - 'a');
@@ -114,7 +114,7 @@ int main() {
     //Нахождение длины числа в 10чной и b2
     char answer[62];
 
-    for (i = 1; i < 50; i++) {
+    for (int i = 1; i < 50; i++) {
         if (pow(second, i) > num) {
             length_of_second = i;
             break;
@@ -128,7 +128,7 @@ int main() {
     end = length_of_second;
     double answer10_after_point = num - answer10int;
     int long long answer10_after_point_int;
-    for (i = length_of_second - 1; i >= 0; i--) {
+    for (int i = length_of_second - 1; i >= 0; i--) {
         answer_remainder = answer10int % second;
         if (answer_remainder < 10) {
             answer[i] = (answer_remainder + '0');
@@ -147,7 +147,7 @@ int main() {
     //Вывод дробных
     else {
         answer[length_of_second] = '.';
-        for (i = length_of_second + 1; i < length_of_second + 14; i++) {
+        for (int i = length_of_second + 1; i < length_of_second + 14; i++) {
             if (answer10_after_point == 0) {
                 end = i;
                 break;
