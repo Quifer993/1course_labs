@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <math.h>
-
+//#pragma warning(disable : 4996)
 int main() {
     // ввод оснований
     int first, second;
-    if (!(scanf("%d %d", &first, &second)))
-        return 0;
+    scanf("%d %d", &first, &second);
     //проверка оснований
     if (first < 2 || first>16 || second < 2 || second>16) {
         printf("bad input");
@@ -13,9 +12,8 @@ int main() {
     }
     //ввод числа
     char number[14];
-    if (!(scanf("%14s", &number)))
-        return 0;
-    int point = 100, point_for_check = 100, end_num=13, i;
+    scanf("%14s", &number);
+    int point = 100, point_for_check = 100, end_num = 13, i;
     long double num = 0;
     //поиск точки
     for (i = 0; i < 14; i++) {
@@ -103,7 +101,7 @@ int main() {
         }
 
     }
-    int length_of_second=0, end;
+    int length_of_second = 0, end;
 
     //Нахождение длины числа в 10чной и b2
     char answer[62];
