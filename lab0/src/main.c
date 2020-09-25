@@ -17,7 +17,7 @@ int main() {
     //ввод числа
     char number[14];
 
-    if (!(scanf("%14s", number))){
+    if (!(scanf("%13s", number))){
         return 0;
     }
 
