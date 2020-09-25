@@ -4,7 +4,9 @@
 int main() {
     // ввод оснований
     int first, second;
-    scanf("%d %d", &first, &second);
+    if (!(scanf("%d %d", &first, &second))){
+        return 0;
+    }
     //проверка оснований
     if (first < 2 || first>16 || second < 2 || second>16) {
         printf("bad input");
@@ -12,7 +14,10 @@ int main() {
     }
     //ввод числа
     char number[14];
-    scanf("%14s", &number);
+    if (!(scanf("%14s", &number))) {
+        return 0;
+    }
+
     int point = 100, point_for_check = 100, end_num = 13, i;
     long double num = 0;
     //поиск точки
