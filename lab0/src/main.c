@@ -17,7 +17,6 @@ int main() {
     if (!(scanf("%14s", &number))) {
         return 0;
     }
-
     int point = 100, point_for_check = 100, end_num = 13, i;
     long double num = 0;
     //поиск точки
