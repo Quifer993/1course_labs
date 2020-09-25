@@ -117,19 +117,20 @@ int main() {
     if (num == (int)num) {
         point_for_check = 100;
     }
-    int long long answer10 = num / 1;
+    int long long answer10int = num / 1;
     int answer_remainder;
     end = length_of_second;
-    long double answer10_after_point = num - answer10, answer10_after_point_int;
+    double answer10_after_point = num - answer10int;
+    int long long answer10_after_point_int;
     for (i = length_of_second - 1; i >= 0; i--) {
-        answer_remainder = answer10 % second;
+        answer_remainder = answer10int % second;
         if (answer_remainder < 10) {
             answer[i] = (answer_remainder + '0');
         }
         else {
             answer[i] = (answer_remainder + '7');
         }
-        answer10 = answer10 / second;
+        answer10int = answer10int / second;
     }
     //Вывод только целых
     if (point_for_check == 100) {
