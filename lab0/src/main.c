@@ -1,36 +1,38 @@
 #include <stdio.h>
 #include <math.h>
+//#pragma warning(disable : 4996)
+
 
 int main() {
     // ввод оснований
-    int first, second;
+    int b1, b2;
 
-    if (!(scanf("%d %d", &first, &second))){
+    if (!(scanf("%d %d", &b1, &b2))) {
         return 0;
     }
 
     //проверка оснований
-    if (first < 2 || first>16 || second < 2 || second>16) {
+    if (b1 < 2 || b1>16 || b2 < 2 || b2>16) {
         printf("bad input");
         return 0;
     }
-    //ввод числа
+    
     char number[14];
 
-    if (!(scanf("%13s", number))){
+    if (!(scanf("%13s", number))) {
         return 0;
     }
 
-    int point = 100, point_for_check = 100, end_num = 13;
+    int point = 100, end_num = 13;
     long double num = 0;
     //поиск точки
+
     for (int i = 0; i < 14; i++) {
         if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || \
             ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
             if (number[i] == '.') {
                 if (point == 100) {
                     point = i;
-                    point_for_check = i;
                 }
                 else {
                     printf("bad input");
@@ -47,13 +49,16 @@ int main() {
             return 0;
         }
     }
+
     if ((end_num - point == 1) || (point == 0)) {
         printf("bad input");
         return 0;
     }
+
     if (point == 100) {
         point = end_num;
     }
+
     for (int i = end_num - 1; i >= 0; i--) {
         //a -> A, b -> B,..
         if ((number[i] - 'a') >= 0) {
@@ -63,8 +68,8 @@ int main() {
         if (!(i == point)) {
             if (i < point) {
                 if ((number[i] <= '9')) {
-                    if (number[i] < first + '0') {
-                        num = num + (number[i] - '0') * pow(first, point - i - 1);
+                    if (number[i] < b1 + '0') {
+                        num = num + (number[i] - '0') * pow(b1, point - i - 1);
                     }
                     else {
                         printf("bad input");
@@ -73,8 +78,8 @@ int main() {
                 }
                 else {
                     if (number[i] >= 'A') {
-                        if (number[i] < (first + '7')) {
-                            num = num + (number[i] - '7') * pow(first, point - i - 1);
+                        if (number[i] < (b1 + '7')) {
+                            num = num + (number[i] - '7') * pow(b1, point - i - 1);
                         }
                         else {
                             printf("bad input");
@@ -85,8 +90,8 @@ int main() {
             }
             else {
                 if ((number[i] <= '9')) {
-                    if (number[i] < first + '0') {
-                        num = num + (number[i] - '0') * pow(first, point - i);
+                    if (number[i] < b1 + '0') {
+                        num = num + (number[i] - '0') * pow(b1, point - i);
                     }
                     else {
                         printf("bad input");
@@ -95,8 +100,8 @@ int main() {
                 }
                 else {
                     if (number[i] >= 'A') {
-                        if (number[i] < (first + '7')) {
-                            num = num + (number[i] - '7') * pow(first, point - i);
+                        if (number[i] < (b1 + '7')) {
+                            num = num + (number[i] - '7') * pow(b1, point - i);
                         }
                         else {
                             printf("bad input");
@@ -105,51 +110,42 @@ int main() {
                     }
                 }
             }
-
         }
-
     }
-    int length_of_second = 0, end;
 
-    //Нахождение длины числа в 10чной и b2
+    int length_of_second = 0, end;
     char answer[62];
 
-    for (int i = 1; i < 50; i++) {
-        if (pow(second, i) > num) {
+    //Нахождение длины числа в b2 с.с.
+    for (int i = 1; i < 49; i++) {
+        if (pow(b2, i) > num) {
             length_of_second = i;
             break;
         }
     }
-    if (num == (int)num) {
-        point_for_check = 100;
-    }
+
     int long long answer10int = num / 1;
-    end = length_of_second;
     double answer10_after_point = num - answer10int;
+    end = length_of_second;
+
     for (int i = length_of_second - 1; i >= 0; i--) {
-        if (answer10int % second < 10) {
-            answer[i] = (answer10int % second + '0');
+        if (answer10int % b2 < 10) {
+            answer[i] = (answer10int % b2 + '0');
         }
         else {
-            answer[i] = (answer10int % second + '7');
+            answer[i] = (answer10int % b2 + '7');
         }
-        answer10int = answer10int / second;
+        answer10int = answer10int / b2;
     }
-    //Вывод только целых
-    if (point_for_check == 100) {
-        answer[end] = '\0';
-        printf("%s\n", answer);
-        return 0;
-    }
-    //Вывод дробных
-    else {
+
+    if (!(num == (int)num)) {
         answer[length_of_second] = '.';
         for (int i = length_of_second + 1; i < length_of_second + 14; i++) {
             if (answer10_after_point == 0) {
                 end = i;
                 break;
             }
-            answer10_after_point = answer10_after_point * second;
+            answer10_after_point = answer10_after_point * b2;
             if ((int)answer10_after_point < 10) {
                 answer[i] = ((int)answer10_after_point + '0');
             }
@@ -160,6 +156,7 @@ int main() {
             answer10_after_point = answer10_after_point - (int)answer10_after_point;
         }
     }
+
     answer[end] = '\0';
     printf("%s\n", answer);
     return 0;
