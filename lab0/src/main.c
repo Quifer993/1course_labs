@@ -125,12 +125,6 @@ int main() {
 
     //Нахождение длины числа в b2 с.с.
     find_length(num, &length_of_second, b2);
-    for (int i = 1; i < 49; i++) {
-        if (pow(b2, i) > num) {
-            length_of_second = i;
-            break;
-        }
-    }
 
     int long long answer10int = num / 1;
     double answer10_after_point = num - answer10int;
