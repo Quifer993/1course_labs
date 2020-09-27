@@ -3,6 +3,16 @@
 //#pragma warning(disable : 4996)
 
 
+void find_length(char num[],int* length_of_second,int b2){
+    for (int i = 1; i < 49; i++) {
+        if (pow(b2, i) > num) {
+            length_of_second = i;
+            break;
+        }
+    }
+}
+
+
 int main() {
     // ввод оснований
     int b1, b2;
@@ -16,7 +26,7 @@ int main() {
         printf("bad input");
         return 0;
     }
-    
+
     char number[14];
 
     if (!(scanf("%13s", number))) {
@@ -27,7 +37,7 @@ int main() {
     long double num = 0;
     //поиск точки
 
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; number[i] != '\0'; ++i) {
         if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || \
             ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
             if (number[i] == '.') {
@@ -39,10 +49,7 @@ int main() {
                     return 0;
                 }
             }
-            if (number[i] == '\0') {
-                end_num = i;
-                break;
-            }
+            end_num = i + 1;
         }
         else {
             printf("bad input");
@@ -117,6 +124,7 @@ int main() {
     char answer[62];
 
     //Нахождение длины числа в b2 с.с.
+    find_length(num, &length_of_second, b2);
     for (int i = 1; i < 49; i++) {
         if (pow(b2, i) > num) {
             length_of_second = i;
