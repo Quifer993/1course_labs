@@ -2,25 +2,34 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 int is_input_right(int b1, int b2, short int input) {
     if (input != 2 || b1 < 2 || b1>16 || b2 < 2 || b2>16) {
-        printf("bad input");
         return 1;
     }
+    return 0;
 }
 
-int check_bad_input(char number[]) {
+int for_A_to_a(char number) {
+    if (number >= 'A' && number <= 'F') {
+        number = (number - 'A' + 'a');
+    }
+    return number;
+}
 
+int check_bad_input(char number[], int b1) {
     for (int i = 0; number[i] != '\0'; i++) {
-
-        if (number[i] >= 'A' && number[i] <= 'F') {
-            number[i] = (number[i] - 'A' + 'a');
-        }
-
-        if (!((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || ((number[i] >= 'a') && (number[i] <= 'f')))) {
-            printf("bad input");
+        if (number[i] != '.' && (number[i] < '0' || number[i]>'9') && (number[i] < 'a' || number[i]>'f')) {
             return 1;
+        }
+        if (number[i] <= '9') {
+            if (number[i] >= b1 + '0') {
+                return 1;
+            }
+        }
+        else {
+            if (number[i] >= b1 + 'a' - 10) {
+                return 1;
+            }
         }
     }
     return 0;
@@ -33,7 +42,6 @@ int checkup_point(char number[], int* point, int* end_num) {
                 *point = i;
             }
             else {
-                printf("bad input");
                 return 1;
             }
 
@@ -41,7 +49,6 @@ int checkup_point(char number[], int* point, int* end_num) {
         *end_num = i + 1;
     }
     if ((*end_num - *point == 1) || (*point == 0)) {
-        printf("bad input");
         return 1;
     }
 
@@ -49,6 +56,13 @@ int checkup_point(char number[], int* point, int* end_num) {
         *point = *end_num;
     }
     return 0;
+}
+
+double translation(char number, int b1, int power) {
+    if ((number <= '9')) {
+        return (number - '0') * pow(b1, power);
+    }
+    return (number + 10 - 'a') * pow(b1, power);
 }
 
 
@@ -66,7 +80,11 @@ int main() {
         return 0;
     }
 
-    int error2 = check_bad_input(number);
+    for (int i = 0; number[i] != '\0'; i++) {
+        number[i] = for_A_to_a(number[i]);
+    }
+
+    int error2 = check_bad_input(number, b1);
     int error3 = checkup_point(number, &point, &end_num);
     if (error1 == 1 || error2 == 1 || error3 == 1) {
         printf("bad input");
@@ -74,59 +92,22 @@ int main() {
     }
 
     long long unsigned num_integer = 0;
-    long double fractional = 0;
+    double fractional = 0;
     for (int i = end_num - 1; i >= 0; i--) {
-        if (i != point) {
-            if (i < point) {
-                if ((number[i] <= '9')) {
-                    if (number[i] < b1 + '0') {
-                        num_integer = num_integer + (number[i] - '0') * pow(b1, point - i - 1);
-                    }
-                    else {
-                        printf("bad input");
-                        return 0;
-                    }
-                }
-                else {
-                    if (number[i] >= 'a') {
-                        if (number[i] < (b1 + 'W')) {
-                            num_integer = num_integer + (number[i] - 'W') * pow(b1, point - i - 1);
-                        }
-                        else {
-                            printf("bad input");
-                            return 0;
-                        }
-                    }
-                }
-            }
-            else {
-                if ((number[i] <= '9')) {
-                    if (number[i] < b1 + '0') {
-                        fractional = fractional + (number[i] - '0') * pow(b1, point - i);
-                    }
-                    else {
-                        printf("bad input");
-                        return 0;
-                    }
-                }
-                else {
-                    if (number[i] >= 'a') {
-                        if (number[i] < (b1 + 'W')) {
-                            fractional = fractional + (number[i] - 'W') * pow(b1, point - i);
-                        }
-                        else {
-                            printf("bad input");
-                            return 0;
-                        }
-                    }
-                }
-            }
+        if (i < point) {
+            int power_i = point - i - 1;
+            num_integer = num_integer + translation(number[i], b1, power_i);
+        }
+        if (i > point) {
+            int power_f = point - i;
+            fractional = fractional + translation(number[i], b1, power_f);
         }
     }
 
     int length_of_second = 0;
+    const int MAX_INT = 49;
 
-    for (int i = 1; i < 49; i++) {
+    for (int i = 1; i < MAX_INT; i++) {
         if (pow(b2, i) > num_integer) {
             length_of_second = i;
             break;
@@ -137,10 +118,10 @@ int main() {
 
     for (int i = length_of_second - 1; i >= 0; i--) {
         if (num_integer % b2 < 10) {
-            answer[i] = (num_integer % b2 + '0');
+            answer[i] = num_integer % b2 + '0';
         }
         else {
-            answer[i] = (num_integer % b2 + 'W');
+            answer[i] = num_integer % b2 + 'a' - 10;
         }
         num_integer = num_integer / b2;
     }
@@ -154,14 +135,15 @@ int main() {
                 break;
             }
             fractional = fractional * b2;
-            if ((int)fractional < 10) {
-                answer[i] = ((int)fractional + '0');
+            int int_fractional = fractional;
+            if (int_fractional < 10) {
+                answer[i] = int_fractional + '0';
             }
             else {
-                answer[i] = ((int)fractional + 'W');
+                answer[i] = int_fractional + 'a' - 10;
             }
             end = i;
-            fractional = fractional - (int)fractional;
+            fractional = fractional - int_fractional;
         }
     }
 
