@@ -1,72 +1,86 @@
 #include <stdio.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
+#include <stdlib.h>
+
+
+int is_input_right(int b1, int b2, short int input) {
+    if (input != 2 || b1 < 2 || b1>16 || b2 < 2 || b2>16) {
+        printf("bad input");
+        return 1;
+    }
+}
+
+int check_bad_input(char number[]) {
+
+    for (int i = 0; number[i] != '\0'; i++) {
+
+        if (number[i] >= 'A' && number[i] <= 'F') {
+            number[i] = (number[i] - 'A' + 'a');
+        }
+
+        if (!((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || ((number[i] >= 'a') && (number[i] <= 'f')))) {
+            printf("bad input");
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int checkup_point(char number[], int* point, int* end_num) {
+    for (int i = 0; number[i] != '\0'; i++) {
+        if (number[i] == '.') {
+            if (*point == -1) {
+                *point = i;
+            }
+            else {
+                printf("bad input");
+                return 1;
+            }
+
+        }
+        *end_num = i + 1;
+    }
+    if ((*end_num - *point == 1) || (*point == 0)) {
+        printf("bad input");
+        return 1;
+    }
+
+    if (*point == -1) {
+        *point = *end_num;
+    }
+    return 0;
+}
 
 
 int main() {
-    // ввод оснований
     int b1, b2;
+    short int input = (scanf("%d %d", &b1, &b2));
+    int error1 = is_input_right(b1, b2, input);
 
-    if (!(scanf("%d %d", &b1, &b2))) {
-        return 0;
-    }
-
-    //проверка оснований
-    if (b1 < 2 || b1>16 || b2 < 2 || b2>16) {
-        printf("bad input");
-        return 0;
-    }
-
+    int point = -1;
+    int end_num = 0;
     char number[14];
 
-    if (!(scanf("%13s", number))) {
-        return 0;
-    }
-
-    int point = 100, end_num = 13;
-    long double num = 0;
-    //поиск точки
-
-    for (int i = 0; number[i] != '\0'; ++i) {
-        if ((number[i] == '.') || ((number[i] >= '0') && (number[i] <= '9')) || \
-            ((number[i] >= 'A') && (number[i] <= 'F')) || ((number[i] >= 'a') && (number[i] <= 'f')) || (number[i] == '\0')) {
-            if (number[i] == '.') {
-                if (point == 100) {
-                    point = i;
-                }
-                else {
-                    printf("bad input");
-                    return 0;
-                }
-            }
-            end_num = i + 1;
-        }
-        else {
-            printf("bad input");
-            return 0;
-        }
-    }
-
-    if ((end_num - point == 1) || (point == 0)) {
+    if (scanf("%13s", &number) != 1) {
         printf("bad input");
         return 0;
     }
 
-    if (point == 100) {
-        point = end_num;
+    int error2 = check_bad_input(number);
+    int error3 = checkup_point(number, &point, &end_num);
+    if (error1 == 1 || error2 == 1 || error3 == 1) {
+        printf("bad input");
+        return 0;
     }
 
+    long long unsigned num_integer = 0;
+    long double fractional = 0;
     for (int i = end_num - 1; i >= 0; i--) {
-        //a -> A, b -> B,..
-        if ((number[i] - 'a') >= 0) {
-            number[i] = (number[i] + 'A' - 'a');
-        }
-        //перевод из b1 в 10чную
-        if (!(i == point)) {
+        if (i != point) {
             if (i < point) {
                 if ((number[i] <= '9')) {
                     if (number[i] < b1 + '0') {
-                        num = num + (number[i] - '0') * pow(b1, point - i - 1);
+                        num_integer = num_integer + (number[i] - '0') * pow(b1, point - i - 1);
                     }
                     else {
                         printf("bad input");
@@ -74,9 +88,9 @@ int main() {
                     }
                 }
                 else {
-                    if (number[i] >= 'A') {
-                        if (number[i] < (b1 + '7')) {
-                            num = num + (number[i] - '7') * pow(b1, point - i - 1);
+                    if (number[i] >= 'a') {
+                        if (number[i] < (b1 + 'W')) {
+                            num_integer = num_integer + (number[i] - 'W') * pow(b1, point - i - 1);
                         }
                         else {
                             printf("bad input");
@@ -88,7 +102,7 @@ int main() {
             else {
                 if ((number[i] <= '9')) {
                     if (number[i] < b1 + '0') {
-                        num = num + (number[i] - '0') * pow(b1, point - i);
+                        fractional = fractional + (number[i] - '0') * pow(b1, point - i);
                     }
                     else {
                         printf("bad input");
@@ -96,9 +110,9 @@ int main() {
                     }
                 }
                 else {
-                    if (number[i] >= 'A') {
-                        if (number[i] < (b1 + '7')) {
-                            num = num + (number[i] - '7') * pow(b1, point - i);
+                    if (number[i] >= 'a') {
+                        if (number[i] < (b1 + 'W')) {
+                            fractional = fractional + (number[i] - 'W') * pow(b1, point - i);
                         }
                         else {
                             printf("bad input");
@@ -110,47 +124,44 @@ int main() {
         }
     }
 
-    int length_of_second = 0, end;
-    char answer[62];
+    int length_of_second = 0;
 
-    //Нахождение длины числа в b2 с.с.
     for (int i = 1; i < 49; i++) {
-        if (pow(b2, i) > num) {
+        if (pow(b2, i) > num_integer) {
             length_of_second = i;
             break;
         }
     }
 
-    int long long answer10int = num / 1;
-    double answer10_after_point = num - answer10int;
-    end = length_of_second;
+    char answer[62];
 
     for (int i = length_of_second - 1; i >= 0; i--) {
-        if (answer10int % b2 < 10) {
-            answer[i] = (answer10int % b2 + '0');
+        if (num_integer % b2 < 10) {
+            answer[i] = (num_integer % b2 + '0');
         }
         else {
-            answer[i] = (answer10int % b2 + '7');
+            answer[i] = (num_integer % b2 + 'W');
         }
-        answer10int = answer10int / b2;
+        num_integer = num_integer / b2;
     }
 
-    if (!(num == (int)num)) {
+    int end = length_of_second;
+    if (fractional != 0) {
         answer[length_of_second] = '.';
         for (int i = length_of_second + 1; i < length_of_second + 14; i++) {
-            if (answer10_after_point == 0) {
+            if (fractional == 0) {
                 end = i;
                 break;
             }
-            answer10_after_point = answer10_after_point * b2;
-            if ((int)answer10_after_point < 10) {
-                answer[i] = ((int)answer10_after_point + '0');
+            fractional = fractional * b2;
+            if ((int)fractional < 10) {
+                answer[i] = ((int)fractional + '0');
             }
             else {
-                answer[i] = ((int)answer10_after_point + '7');
+                answer[i] = ((int)fractional + 'W');
             }
             end = i;
-            answer10_after_point = answer10_after_point - (int)answer10_after_point;
+            fractional = fractional - (int)fractional;
         }
     }
 
