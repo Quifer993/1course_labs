@@ -75,7 +75,7 @@ int main() {
     int end_num = 0;
     char number[14];
 
-    if (scanf("%13s", &number) != 1) {
+    if (scanf("%13s", number) != 1) {
         printf("bad input");
         return 0;
     }
