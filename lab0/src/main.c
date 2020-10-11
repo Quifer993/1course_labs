@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+
 int is_input_right(int b1, int b2, short int input) {
     if (input != 2 || b1 < 2 || b1>16 || b2 < 2 || b2>16) {
         return 1;
@@ -58,11 +59,18 @@ int checkup_point(char number[], int* point, int* end_num) {
     return 0;
 }
 
-double translation(char number, int b1, int power) {
+double translation_fr(char number, int b1, int power) {
     if ((number <= '9')) {
         return (number - '0') * pow(b1, power);
     }
-    return (number + 10 - 'a') * pow(b1, power);
+    return (number - 'a' + 10) * pow(b1, power);
+}
+
+long long unsigned translation_int(char number, int b1, int power) {
+    if ((number <= '9')) {
+        return (number - '0') * pow(b1, power);
+    }
+    return (number - 'a' + 10) * pow(b1, power);
 }
 
 
@@ -75,7 +83,7 @@ int main() {
     int end_num = 0;
     char number[14];
 
-    if (scanf("%13s", number) != 1) {
+    if (scanf("%13s", &number) != 1) {
         printf("bad input");
         return 0;
     }
@@ -93,19 +101,19 @@ int main() {
 
     long long unsigned num_integer = 0;
     double fractional = 0;
-    for (int i = end_num - 1; i >= 0; i--) {
-        if (i < point) {
-            int power_i = point - i - 1;
-            num_integer = num_integer + translation(number[i], b1, power_i);
-        }
-        if (i > point) {
-            int power_f = point - i;
-            fractional = fractional + translation(number[i], b1, power_f);
-        }
+    for (int i = end_num - 1; i > point; i--) {
+        int power_f = point - i;
+        fractional = fractional + translation_fr(number[i], b1, power_f);
     }
 
+    for (int i = point - 1; i >= 0; i--) {
+        int power_i = point - i - 1;
+        num_integer = num_integer + translation_int(number[i], b1, power_i);
+    }
+
+
+    const int MAX_INT = 49; //full int length (48{int} +1{\0})
     int length_of_second = 0;
-    const int MAX_INT = 49;
 
     for (int i = 1; i < MAX_INT; i++) {
         if (pow(b2, i) > num_integer) {
@@ -114,7 +122,7 @@ int main() {
         }
     }
 
-    char answer[62];
+    char answer[62]; //full length (48{int} +12{float} + 1{.} + 1{\0})
 
     for (int i = length_of_second - 1; i >= 0; i--) {
         if (num_integer % b2 < 10) {
