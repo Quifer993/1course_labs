@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-
 int is_input_right(int b1, int b2, short int input) {
     if (input != 2 || b1 < 2 || b1>16 || b2 < 2 || b2>16) {
         return 1;
@@ -12,7 +11,7 @@ int is_input_right(int b1, int b2, short int input) {
 
 int for_A_to_a(char number) {
     if (number >= 'A' && number <= 'F') {
-        number = (number - 'A' + 'a');
+        number = number - 'A' + 'a';
     }
     return number;
 }
@@ -49,7 +48,7 @@ int checkup_point(char number[], int* point, int* end_num) {
         }
         *end_num = i + 1;
     }
-    if ((*end_num - *point == 1) || (*point == 0)) {
+    if (*end_num - *point == 1 || *point == 0) {
         return 1;
     }
 
@@ -60,30 +59,30 @@ int checkup_point(char number[], int* point, int* end_num) {
 }
 
 double translation_fr(char number, int b1, int power) {
-    if ((number <= '9')) {
+    if (number <= '9') {
         return (number - '0') * pow(b1, power);
     }
     return (number - 'a' + 10) * pow(b1, power);
 }
 
-long long unsigned translation_int(char number, int b1, int power) {
-    if ((number <= '9')) {
-        return (number - '0') * pow(b1, power);
+long long unsigned translation_int(char number, long long unsigned power) {
+    if (number <= '9') {
+        return (number - '0') * power;
     }
-    return (number - 'a' + 10) * pow(b1, power);
+    return (number - 'a' + 10) * power;
 }
 
 
 int main() {
     int b1, b2;
-    short int input = (scanf("%d %d", &b1, &b2));
+    short int input = scanf("%d %d", &b1, &b2);
     int error1 = is_input_right(b1, b2, input);
 
     int point = -1;
     int end_num = 0;
     char number[14];
 
-    if (scanf("%13s", number) != 1) {
+    if (scanf("%13s", &number) != 1) {
         printf("bad input");
         return 0;
     }
@@ -106,11 +105,11 @@ int main() {
         fractional = fractional + translation_fr(number[i], b1, power_f);
     }
 
+    long long unsigned power = 1;
     for (int i = point - 1; i >= 0; i--) {
-        int power_i = point - i - 1;
-        num_integer = num_integer + translation_int(number[i], b1, power_i);
+        num_integer = num_integer + translation_int(number[i], power);
+        power *= b1;
     }
-
 
     const int MAX_INT = 49; //full int length (48{int} +1{\0})
     int length_of_second = 0;
