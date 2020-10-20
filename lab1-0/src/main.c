@@ -1,11 +1,12 @@
 #include <stdio.h>
-#pragma warning(disable : 4996)
+
 
 int length_str(char text[]) {
 	int length_input = 0;
 	for (int i = 0; text[i] != '\0' && text[i] != EOF; i++) {
 		length_input += 1;
 	}
+
 	return length_input;
 }
 
@@ -13,6 +14,7 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 	for (int i = 0; i < length_template - shift_sym; i++) {
 		text[i] = text[i + shift_sym];
 	}
+
 	for (int i = length_template - shift_sym; i < length_template; i++) {
 		char input_text;
 		input_text = getchar();
@@ -22,13 +24,14 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 		text[i] = input_text;
 		*number += 1;
 	}
+
 	return 0;
 }
 
 
 int main() {
 	char template[17]; // 16 symbols + '\0'
-	gets(char *template);
+	char space = gets(template);
 	int length_template = length_str(template);
 	int repit_last_symbol = length_template;
 	for (int i = length_template - 2; i >= 0; i--) {
@@ -38,17 +41,11 @@ int main() {
 		}
 	}
 
-	int number = 0, shift_sym = length_template;
+	int number = 0;
+	int shift_sym = length_template;
 	char text[17];
 
 	while (shift(length_template, text, shift_sym, &number) != 2) {
-		if (shift_sym == length_template) {
-			for (int i = 0; i < length_template; i++) {
-				if (text[i] == EOF) {
-					return 0;
-				}
-			}
-		}
 		printf("%i ", number);
 		if (text[length_template - 1] == template[length_template - 1]) {
 			int k;
