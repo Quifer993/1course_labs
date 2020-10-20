@@ -31,7 +31,7 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 
 int main() {
 	char template[17]; // 16 symbols + '\0'
-	if (scanf("%[^\n]s", template) == 0) {
+	if (scanf("%16[^\n]s", template) == 0) {
 		return 0;
 	}
 	getchar(); //getchar '\n'
