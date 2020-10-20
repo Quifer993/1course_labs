@@ -28,7 +28,7 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 
 int main() {
 	char template[17]; // 16 symbols + '\0'
-	gets(template);
+	gets(char *template);
 	int length_template = length_str(template);
 	int repit_last_symbol = length_template;
 	for (int i = length_template - 2; i >= 0; i--) {
@@ -40,7 +40,7 @@ int main() {
 
 	int number = 0, shift_sym = length_template;
 	char text[17];
-	char name = "in.txt";
+
 	while (shift(length_template, text, shift_sym, &number) != 2) {
 		if (shift_sym == length_template) {
 			for (int i = 0; i < length_template; i++) {
