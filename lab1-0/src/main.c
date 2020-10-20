@@ -14,19 +14,19 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 	for (int i = 0; i < length_template - shift_sym; i++) {
 		text[i] = text[i + shift_sym];
 	}
-	char input_text;
-	int i;
 
-	while ((input_text = getchar()) != EOF) {
-		if (i<length_template) {
-			int i = length_template - shift_sym;
+	for (int i = length_template - shift_sym; i < length_template; i++) {
+		char input_text;
+		if (EOF != (input_text = getchar())) {
 			text[i] = input_text;
 			*number += 1;
-			i++;
+		}
+		else {
+			return 2;
 		}
 	}
 
-	return 2;
+	return 0;
 }
 
 
