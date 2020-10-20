@@ -17,8 +17,7 @@ int shift(int length_template, char text[], int shift_sym, int* number) {
 
 	for (int i = length_template - shift_sym; i < length_template; i++) {
 		char input_text;
-		input_text = getchar();
-		if (input_text == EOF) {
+		if ((input_text = getchar()) == EOF) {
 			return 2;
 		}
 		text[i] = input_text;
