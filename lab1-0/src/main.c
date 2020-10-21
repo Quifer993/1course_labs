@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 
-int shift(int length_template, char text[], int shift_sym, int* number, FILE* in) {
+int shift(int length_template, char text[], int shift_sym, FILE* in) {
 	if (shift_sym != length_template) {
 		for (int i = 0; i < length_template - shift_sym; i++) {
 			text[i] = text[i + shift_sym];
@@ -55,7 +55,7 @@ int main() {
 	int shift_sym = length_template;
 	char text[17];
 
-	while (shift(length_template, text, shift_sym, &number, in) != 2) {
+	while (shift(length_template, text, shift_sym, in) != 2) {
 		number += shift_sym;
 		if (feof(in)) {
 			fclose(in);
