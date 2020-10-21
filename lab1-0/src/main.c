@@ -1,42 +1,48 @@
 #include <stdio.h>
 
 
-int length_str(char text[]) {
-	int length_input = 0;
-	for (int i = 0; text[i] != '\0' && text[i] != EOF; i++) {
-		length_input += 1;
-	}
-
-	return length_input;
-}
-
-int shift(int length_template, char text[], int shift_sym, int* number) {
-	for (int i = 0; i < length_template - shift_sym; i++) {
-		text[i] = text[i + shift_sym];
-	}
-
-	for (int i = length_template - shift_sym; i < length_template; i++) {
-		char input_text;
-		if (EOF != (input_text = getchar())) {
-			text[i] = input_text;
-			*number += 1;
+int shift(int length_template, char text[], int shift_sym, int* number, FILE* in) {
+	if (shift_sym != length_template) {
+		for (int i = 0; i < length_template - shift_sym; i++) {
+			text[i] = text[i + shift_sym];
 		}
-		else {
+
+		for (int i = length_template - shift_sym; i < length_template; i++) {
+			if (fscanf(in, "%c", &text[i]) == 0) {
+				return 2;
+			}
+
+		}
+	}
+	else {
+		if (!fread(text, 1, length_template, in) || feof(in)) {
 			return 2;
 		}
+
 	}
+
 
 	return 0;
 }
 
 
 int main() {
-	char template[17]; // 16 symbols + '\0'
-	if (scanf("%16[^\n]s", template) == 0) {
-		return 0;
+	FILE* in = fopen("in.txt", "rt");
+	if (in == NULL) return 0;
+	char template[18]; // 16 symbols + '\0'
+	int length_template = 0;
+	for (int i = 0; i < 17; i++) {
+		if (fscanf(in, "%c", &template[i]) == 0) {
+			fclose(in);
+			return 0;
+		}
+		if (template[i] == '\n') {
+			template[i] = '\0';
+			break;
+		}
+		length_template += 1;
 	}
-	getchar(); //getchar '\n'
-	int length_template = length_str(template);
+
 	int repit_last_symbol = length_template;
 	for (int i = length_template - 2; i >= 0; i--) {
 		if (template[length_template - 1] == template[i]) {
@@ -49,7 +55,12 @@ int main() {
 	int shift_sym = length_template;
 	char text[17];
 
-	while (shift(length_template, text, shift_sym, &number) != 2) {
+	while (shift(length_template, text, shift_sym, &number, in) != 2) {
+		number += shift_sym;
+		if (feof(in)) {
+			fclose(in);
+			return 0;
+		}
 		printf("%i ", number);
 		if (text[length_template - 1] == template[length_template - 1]) {
 			int k;
@@ -81,5 +92,6 @@ int main() {
 		}
 	}
 
+	fclose(in);
 	return 0;
 }
