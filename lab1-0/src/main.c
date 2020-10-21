@@ -3,11 +3,12 @@
 
 int shift(int length_template, char text[], int shift_sym, FILE* in) {
 	if (shift_sym != length_template) {
-		for (int i = 0; i < length_template - shift_sym; i++) {
+		int begin = length_template - shift_sym;
+		for (int i = 0; i < begin; i++) {
 			text[i] = text[i + shift_sym];
 		}
 
-		for (int i = length_template - shift_sym; i < length_template; i++) {
+		for (int i = begin; i < length_template; i++) {
 			if (fscanf(in, "%c", &text[i]) == 0) {
 				return 2;
 			}
@@ -42,11 +43,12 @@ int main() {
 		}
 		length_template += 1;
 	}
+	int last_symbol = length_template - 1;
 
 	int repit_last_symbol = length_template;
-	for (int i = length_template - 2; i >= 0; i--) {
-		if (template[length_template - 1] == template[i]) {
-			repit_last_symbol = length_template - i - 1;
+	for (int i = last_symbol - 1; i >= 0; i--) {
+		if (template[last_symbol] == template[i]) {
+			repit_last_symbol = last_symbol - i;
 			break;
 		}
 	}
@@ -62,10 +64,10 @@ int main() {
 			return 0;
 		}
 		printf("%i ", number);
-		if (text[length_template - 1] == template[length_template - 1]) {
+		if (text[last_symbol] == template[last_symbol]) {
 			int k;
-			for (k = length_template - 2; k >= 0; k--) {
-				printf("%i ", number - length_template + k + 1);
+			for (k = last_symbol - 1; k >= 0; k--) {
+				printf("%i ", number - last_symbol + k);
 				if (template[k] != text[k]) {
 					shift_sym = repit_last_symbol;
 					break;
@@ -78,8 +80,8 @@ int main() {
 		else {
 			int is_exist_in_input = -1;
 			int j;
-			for (j = length_template - 2; j >= 0; j--) {
-				if (text[length_template - 1] == template[j]) {
+			for (j = last_symbol - 1; j >= 0; j--) {
+				if (text[last_symbol] == template[j]) {
 					is_exist_in_input = j;
 					shift_sym = length_template - j - 1;
 					break;
