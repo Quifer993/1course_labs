@@ -30,7 +30,7 @@ int shift(int length_template, char text[], int shift_sym, FILE* in) {
 int main() {
 	FILE* in = fopen("in.txt", "rt");
 	if (in == NULL) return 0;
-	char template[18]; // 16 symbols + '\0'
+	char template[17]; // 16 symbols + '\0'
 	int length_template = 0;
 	for (int i = 0; i < 17; i++) {
 		if (fscanf(in, "%c", &template[i]) == 0) {
