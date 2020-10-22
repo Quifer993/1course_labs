@@ -74,7 +74,7 @@ int main() {
 				}
 			}
 			if (k == -1) {
-				shift_sym = length_template;
+				shift_sym = repit_last_symbol;
 			}
 		}
 		else {
