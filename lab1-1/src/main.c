@@ -61,8 +61,6 @@ int main() {
 		//printf("%d ", hs);
 	}
 
-
-	int last_symbol = length_template - 1;
 	fclose(in);
 	return 0;
 }
