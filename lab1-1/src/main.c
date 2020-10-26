@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <math.h>
+//#pragma warning(disable : 4996)
 
 
 int main() {
 	FILE* in = fopen("in.txt", "rt");
 	if (in == NULL) return 0;
-	char template[17];
+	unsigned char template[17];
 	int length_template = 0;
 	int ht = 0; //hash template
 	long long int power = 1;
@@ -25,7 +26,7 @@ int main() {
 	}
 	printf("%d ", ht);
 
-	char text[17];
+	unsigned char text[17];
 	int hs = 0;
 	power = 1;
 	int number = length_template;
@@ -45,10 +46,10 @@ int main() {
 			printf("%d ", number - i);
 		}
 	}
-	char input_char;
+	unsigned char input_char;
 	while (fscanf(in, "%c", &input_char) != EOF) {
 		input_char = input_char % 3;
-		char first = text[number % length_template];
+		unsigned char first = text[number % length_template];
 		hs = (hs - first)/3 + power * input_char;
 		text[number % length_template] = input_char;
 		number += 1;
