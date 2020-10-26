@@ -36,7 +36,7 @@ int main() {
 	printf("%d ", ht);
 
 	unsigned char text[17];
-	int hs = 0;
+	int hs = 0; //hash string
 	power = 1;
 	int number = length_template;
 	for (int i = 0; i < length_template; i++) {
@@ -55,14 +55,14 @@ int main() {
 	}
 	unsigned char input_char;
 	while (fscanf(in, "%c", &input_char) != EOF) {
-		unsigned char first = text[number % length_template] % 3;
+		int index = number % length_template;
+		unsigned char first = text[index] % 3;
 		hs = (hs - first)/3 + power * ( input_char % 3 );
-		text[number % length_template] = input_char;
+		text[index] = input_char;
 		number += 1;
 		if (hs == ht) {
 			print_result(number, length_template, template, text);
 		}
-		//printf("%d ", hs);
 	}
 
 	fclose(in);
