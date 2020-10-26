@@ -1,7 +1,17 @@
 #include <stdio.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
 
+
+int print_result(int number, int length_template, unsigned char* template, unsigned char* text) {
+	for (int i = 0; i < length_template; i++) {
+		printf("%d ", number - length_template + i + 1);
+		if (template[i] != text[(number + i )%length_template]){
+			break;
+		}
+	}
+
+	return 0;
+}
 
 int main() {
 	FILE* in = fopen("in.txt", "rt");
@@ -19,8 +29,7 @@ int main() {
 			template[i] = '\0';
 			break;
 		}
-		template[i] = template[i] % 3;
-		ht += template[i] * power;
+		ht += ( template[i] % 3 ) * power;
 		power *= 3;
 		length_template += 1;
 	}
@@ -35,28 +44,23 @@ int main() {
 			fclose(in);
 			return 0;
 		}
-		text[i] = text[i] % 3;
-		hs += text[i] * power;
+		hs += (text[i] % 3) * power;
 		power *= 3;
 	}
 	power /= 3;
 
+
 	if (hs == ht) {
-		for (int i = length_template - 1; i >= 0; i--) {
-			printf("%d ", number - i);
-		}
+		print_result(number, length_template, template, text);
 	}
 	unsigned char input_char;
 	while (fscanf(in, "%c", &input_char) != EOF) {
-		input_char = input_char % 3;
-		unsigned char first = text[number % length_template];
-		hs = (hs - first)/3 + power * input_char;
+		unsigned char first = text[number % length_template] % 3;
+		hs = (hs - first)/3 + power * ( input_char % 3 );
 		text[number % length_template] = input_char;
 		number += 1;
 		if (hs == ht) {
-			for (int i = length_template -1; i >= 0; i--) {
-				printf("%d ", number - i);
-			}
+			print_result(number, length_template, template, text);
 		}
 		//printf("%d ", hs);
 	}
