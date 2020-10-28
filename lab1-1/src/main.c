@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#pragma warning(disable : 4996)
 
 
 int print_result(int number, int length_template, unsigned char* template, unsigned char* text) {
