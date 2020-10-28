@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#pragma warning(disable : 4996)
 
 
 int print_result(int number, int length_template, unsigned char* template, unsigned char* text) {
@@ -53,12 +54,9 @@ int main() {
 	if (hs == ht) {
 		print_result(number, length_template, template, text);
 	}
-	unsigned char input_char;
-	while (fscanf(in, "%c", &input_char) != EOF) {
-		int index = number % length_template;
-		unsigned char first = text[index] % 3;
-		hs = (hs - first)/3 + power * ( input_char % 3 );
-		text[index] = input_char;
+
+	while (fscanf(in, "%c", &text[number % length_template]) != EOF) {
+		hs = hs / 3 + power * (text[number % length_template] % 3 );
 		number += 1;
 		if (hs == ht) {
 			print_result(number, length_template, template, text);
