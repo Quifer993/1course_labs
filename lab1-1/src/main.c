@@ -44,7 +44,7 @@ int main() {
 
 	long long int power = 1;
 	const unsigned int ht = make_hash(template, &power, length_template);//hash template
-	printf("%d ", ht);
+	printf("%u ", ht);
 
 	unsigned char text[17]; 
 	int number = length_template;
