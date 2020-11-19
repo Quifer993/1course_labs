@@ -32,7 +32,7 @@ void merge_block(long int text[], long int first, long int second_begin, long in
 	return;
 }
 
-void merge_sort(long int array, long int const begin, long int const end) {
+void merge_sort(long int* array, long int const begin, long int const end) {
 	long int size_block = end - begin;
 
 	if (size_block < 1) {
