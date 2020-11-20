@@ -52,7 +52,7 @@ void merge_sort(int* array, int const begin, int const end) {
 
 void print_answer(int const array[], int const size) {
 	for (int i = 0; i < size; i++) {
-		printf("%ld ", array[i]);
+		printf("%d ", array[i]);
 	}
 	return;
 }
@@ -60,7 +60,7 @@ void print_answer(int const array[], int const size) {
 
 int main() {
 	int size = 0;
-	if (scanf("%ld", &size) == 0) {
+	if (scanf("%d", &size) == 0) {
 		return 0;
 	}
 	int* array;
@@ -70,7 +70,7 @@ int main() {
 	}
 
 	for (int i = 0; i < size; i++) {
-		if (scanf("%ld", &array[i]) == 0) {
+		if (scanf("%d", &array[i]) == 0) {
 			return 0;
 		}
 	}
