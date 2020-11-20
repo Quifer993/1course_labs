@@ -1,27 +1,27 @@
 #include <stdio.h>
 #include <malloc.h>
 
-void swap(long int* x, long int* y) {
-	long int z = *x;
+void swap(int* x, int* y) {
+	int z = *x;
 	*x = *y;
 	*y = z;
 	return;
 }
 
-void merge_block(long int text[], long int first, long int second_begin, long int const end) {
-	for (long int i = first; i < second_begin && second_begin != end + 1; i++) {
+void merge_block(int text[], int first, int second_begin, int const end) {
+	for (int i = first; i < second_begin && second_begin != end + 1; i++) {
 
 		first += 1;
-		long int second_first = second_begin - first;
+		int second_first = second_begin - first;
 		if (text[i] > text[second_begin]) {
 			swap(&text[i], &text[second_begin]);
-			long int count = 1;
-			for (long int j = first; j < first + (second_first) / 2; j++) {
+			int count = 1;
+			for (int j = first; j < first + (second_first) / 2; j++) {
 				swap(&text[j], &text[second_begin - (count++)]);
 			}
 
 			count = 0;
-			for (long int j = first; j <= first + (second_first - 1) / 2; j++) {
+			for (int j = first; j <= first + (second_first - 1) / 2; j++) {
 				swap(&text[j], &text[second_begin - (count++)]);
 			}
 
@@ -32,8 +32,8 @@ void merge_block(long int text[], long int first, long int second_begin, long in
 	return;
 }
 
-void merge_sort(long int* array, long int const begin, long int const end) {
-	long int size_block = end - begin;
+void merge_sort(int* array, int const begin, int const end) {
+	int size_block = end - begin;
 
 	if (size_block < 1) {
 		return;
@@ -50,8 +50,8 @@ void merge_sort(long int* array, long int const begin, long int const end) {
 	return;
 }
 
-void print_answer(long int const array[], long int const size) {
-	for (long int i = 0; i < size; i++) {
+void print_answer(int const array[], int const size) {
+	for (int i = 0; i < size; i++) {
 		printf("%ld ", array[i]);
 	}
 	return;
@@ -59,24 +59,21 @@ void print_answer(long int const array[], long int const size) {
 
 
 int main() {
-	long int size = 0;
+	int size = 0;
 	if (scanf("%ld", &size) == 0) {
 		return 0;
 	}
-	long int* array;
-	array = (long int*)malloc(size * sizeof(long));
+	int* array;
+	array = (int*)malloc(size * sizeof(int));
 	if (array == NULL) {
 		return 0;
 	}
 
-	for (long int i = 0; i < size; i++) {
-
+	for (int i = 0; i < size; i++) {
 		if (scanf("%ld", &array[i]) == 0) {
 			return 0;
 		}
-
 	}
-
 
 	merge_sort(array, 0, size - 1);
 
