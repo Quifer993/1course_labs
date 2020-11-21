@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
+#pragma warning (disable:4996)
 
 void swap(int* x, int* y) {
 	int z = *x;
@@ -8,45 +10,51 @@ void swap(int* x, int* y) {
 	return;
 }
 
-void merge_block(int text[], int first, int second_begin, int const end) {
-	for (int i = first; i < second_begin && second_begin != end + 1; i++) {
-
-		first += 1;
-		int second_first = second_begin - first;
-		if (text[i] > text[second_begin]) {
-			swap(&text[i], &text[second_begin]);
-			int count = 1;
-			for (int j = first; j < first + (second_first) / 2; j++) {
-				swap(&text[j], &text[second_begin - (count++)]);
-			}
-
-			count = 0;
-			for (int j = first; j <= first + (second_first - 1) / 2; j++) {
-				swap(&text[j], &text[second_begin - (count++)]);
-			}
-
-			second_begin += 1;
-		}
-	}
-
-	return;
-}
-
-void merge_sort(int* array, int const begin, int const end) {
-	int size_block = end - begin;
-
-	if (size_block < 1) {
+void quick_sort(int* array, int const begin, int const end) {
+	if (end - begin < 1) {
 		return;
 	}
-	else {
-		if (size_block > 1) {
-			merge_sort(array, begin, begin + (end - begin - 1) / 2);
-			merge_sort(array, begin + (end - begin + 1) / 2, end);
+	int left = begin;
+	int right = end;
+	int	pivot = (begin + end) / 2;
+
+	while (left != right) {
+
+		while (left != pivot) {
+			if (array[left] > array[pivot]) {
+				break;
+			}
+			left += 1;
+		}
+
+		while (right != pivot) {
+			if (array[right] < array[pivot]) {
+				break;
+			}
+			right -= 1;
+		}
+
+		if (left == right) {
+			break;
+		}
+		else {
+			if (left == pivot) {
+				swap(&array[pivot], &array[right]);
+				pivot = right;
+				continue;
+			}
+			else {
+				if (right == pivot) {
+					swap(&array[pivot], &array[left]);
+					pivot = left;
+					continue;
+				}
+			}
+			swap(&array[left], &array[right]);
 		}
 	}
-
-	merge_block(array, begin, begin + (end - begin + 1) / 2, end);
-
+	quick_sort(array, begin, pivot - 1);
+	quick_sort(array, pivot + 1, end);
 	return;
 }
 
@@ -75,7 +83,7 @@ int main() {
 		}
 	}
 
-	merge_sort(array, 0, size - 1);
+	quick_sort(array, 0, size - 1);
 
 	print_answer(array, size);
 	free(array);
