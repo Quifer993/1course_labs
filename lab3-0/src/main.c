@@ -20,38 +20,28 @@ void quick_sort(int* array, int const begin, int const end) {
 
 	while (left != right) {
 
-		while (left != pivot) {
-			if (array[left] > array[pivot]) {
-				break;
-			}
+		while (left != pivot && array[left] <= array[pivot]) {
 			left += 1;
 		}
 
-		while (right != pivot) {
-			if (array[right] < array[pivot]) {
-				break;
-			}
+		while (right != pivot && array[right] >= array[pivot]) {
 			right -= 1;
 		}
 
-		if (left == right) {
-			break;
-		}
-		else {
+		if (left != right) {
 			if (left == pivot) {
 				swap(&array[pivot], &array[right]);
 				pivot = right;
-				continue;
+			}
+			else if (right == pivot) {
+				swap(&array[pivot], &array[left]);
+				pivot = left;
 			}
 			else {
-				if (right == pivot) {
-					swap(&array[pivot], &array[left]);
-					pivot = left;
-					continue;
-				}
+				swap(&array[left], &array[right]);
 			}
-			swap(&array[left], &array[right]);
 		}
+
 	}
 	quick_sort(array, begin, pivot - 1);
 	quick_sort(array, pivot + 1, end);
@@ -79,6 +69,7 @@ int main() {
 
 	for (int i = 0; i < size; i++) {
 		if (scanf("%d", &array[i]) == 0) {
+			free(array);
 			return 0;
 		}
 	}
