@@ -7,7 +7,6 @@ void swap(int* x, int* y) {
 	int z = *x;
 	*x = *y;
 	*y = z;
-	return;
 }
 
 void quick_sort(int* array, int const begin, int const end) {
@@ -45,14 +44,12 @@ void quick_sort(int* array, int const begin, int const end) {
 	}
 	quick_sort(array, begin, pivot - 1);
 	quick_sort(array, pivot + 1, end);
-	return;
 }
 
 void print_answer(int const array[], int const size) {
 	for (int i = 0; i < size; i++) {
 		printf("%d ", array[i]);
 	}
-	return;
 }
 
 
