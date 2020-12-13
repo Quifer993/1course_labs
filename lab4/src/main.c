@@ -108,7 +108,7 @@ int calc(char input[], int end, int arr_num[], char arr_zn[]) {
 					else {
 						if (arr_num_i > 1 && arr_zn_i > 0 && i > 0 && input[i] == ')' && input[i - 1] != '(') {
 							while (arr_zn[arr_zn_i - 1] != '(') {
-								if (arr_num_i > 1 && arr_zn_i > 0) {
+								if (arr_num_i > 1 && arr_zn_i > 1) {
 									arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
 									arr_num_i -= 1;
 									arr_zn_i -= 1;
