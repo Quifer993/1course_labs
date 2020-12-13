@@ -25,6 +25,7 @@ int operation(int first, int second, char op, int* error) {
 			}
 		}
 	}
+	return 0;
 }
 
 int calc(char input[], int end, int arr_num[], char arr_zn[]) {
