@@ -2,29 +2,30 @@
 #include <assert.h>
 #include <malloc.h>
 
+
 int operation(int first, int second, char op, int* error) {
 	if (op == '*') {
 		return first * second;
 	}
-	else {
-		if (op == '/') {
-			if (second != 0) {
-				return first / second;
-			}
-			else {
-				*error = 1;
-				return 0;
-			}
+
+	if (op == '/') {
+		if (second != 0) {
+			return first / second;
 		}
 		else {
-			if (op == '+') {
-				return first + second;
-			}
-			else {
-				return first - second;
-			}
+			*error = 1;
+			return 0;
 		}
 	}
+
+	if (op == '+') {
+		return first + second;
+	}
+
+	if (op == '-') {
+		return first - second;
+	}
+
 	return 0;
 }
 
@@ -41,95 +42,123 @@ int calc(char input[], int end, int arr_num[], char arr_zn[]) {
 	}
 
 	while (i < end) {
-		if (input[i] != ' ') {
-			if (input[i] <= '9' && input[i] >= '0') {
-				int number = input[i] - '0';
-				while (input[i + 1] <= '9' && input[i + 1] >= '0') {
-					number = number * 10 + input[i + 1] - '0';
-					i++;
-				}
+		if (input[i] == ' ') {
+			i++;
+			continue;
+		}
 
-				if (negative == 1) {
-					number = 0 - number;
-					negative = 0;
-				}
-
-				arr_num[arr_num_i] = number;
-				arr_num_i += 1;
+		if (input[i] <= '9' && input[i] >= '0') {
+			int number = input[i] - '0';
+			while (input[i + 1] <= '9' && input[i + 1] >= '0') {
+				number = number * 10 + input[i + 1] - '0';
+				i++;
 			}
-			else {
-				if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/') {
 
-					if (arr_zn_i == 0) {
-						arr_zn[0] = input[i];
-						arr_zn_i += 1;
-					}
-					else {
-						if (arr_zn[arr_zn_i - 1] == '(') {
-							arr_zn[arr_zn_i] = input[i];
-							arr_zn_i += 1;
-						}
-						else {
-							if (arr_num_i > 1) {
-								if (input[i] == '*' || input[i] == '/') {
-									if (arr_zn[arr_zn_i - 1] == '+' || arr_zn[arr_zn_i - 1] == '-') {
-										arr_zn[arr_zn_i] = input[i];
-										arr_zn_i += 1;
-									}
-									else {
-										arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
-										arr_num_i -= 1;
-										arr_zn[arr_zn_i - 1] = input[i];
-									}
-								}
-								else {
-									while (arr_zn_i > 0  && arr_zn[arr_zn_i - 1] != '(') {
-										arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
-										arr_num_i -= 1;
-										arr_zn_i -= 1;
-									}
+			if (negative == 1) {
+				number = 0 - number;
+				negative = 0;
+			}
 
-									arr_zn[arr_zn_i] = input[i];
-									arr_zn_i += 1;
-								}
-							}
-							else {
-								return 2;
-							}
-						}
-					}
+			arr_num[arr_num_i] = number;
+			arr_num_i += 1;
 
+			i++;
+			continue;
+		}
+
+		if (input[i] == '+' || input[i] == '-' || input[i] == '*' || input[i] == '/') {
+
+			if (arr_zn_i == 0) {
+				arr_zn[0] = input[i];
+				arr_zn_i += 1;
+				i++;
+				continue;
+			}
+
+			if (arr_zn[arr_zn_i - 1] == '(') {
+				arr_zn[arr_zn_i] = input[i];
+				arr_zn_i += 1;
+				i++;
+				continue;
+			}
+
+			if (arr_num_i <= 1) {
+				return 2;
+			}
+
+			if (input[i] == '*' || input[i] == '/') {
+				if (arr_zn[arr_zn_i - 1] == '+' || arr_zn[arr_zn_i - 1] == '-') {
+					arr_zn[arr_zn_i] = input[i];
+					arr_zn_i += 1;
 				}
 				else {
-					if (input[i] == '(') {
-						arr_zn[arr_zn_i] = input[i];
-						arr_zn_i += 1;
-					}
-					else {
-						if (arr_num_i > 0 && arr_zn_i > 0 && i > 0 && input[i] == ')' && input[i - 1] != '(') {
-							while (arr_zn[arr_zn_i - 1] != '(') {
-								if (arr_num_i > 1 && arr_zn_i > 1) {
-									arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
-									arr_num_i -= 1;
-									arr_zn_i -= 1;
-								}
-								else {
-									return 2;
-								}
-							}
-
-							arr_zn_i -= 1;
-						}
-						else {
-							return 2;
-						}
-					}
+					arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
+					arr_num_i -= 1;
+					arr_zn[arr_zn_i - 1] = input[i];
 				}
+
+				if (error == 1) {
+					return 1;
+				}
+
+				i++;
+				continue;
 			}
+
+			while (arr_zn_i > 0 && arr_zn[arr_zn_i - 1] != '(') {
+				arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
+				arr_num_i -= 1;
+				arr_zn_i -= 1;
+			}
+
+			if (error == 1) {
+				return 1;
+			}
+
+			arr_zn[arr_zn_i] = input[i];
+			arr_zn_i += 1;
+			i++;
+			continue;
 
 		}
 
-		i++;
+		if (input[i] == '(') {
+			arr_zn[arr_zn_i] = input[i];
+			arr_zn_i += 1;
+			i++;
+			continue;
+		}
+
+		if (arr_zn_i > 0 && i > 0 && input[i] == ')' && input[i - 1] != '(') {
+			int correct_brackets = 0;
+			for (int j = i - 1; j >= 0 || input[j] != '('; j--) {
+				if (input[j] <= '9' && input[j] >= '0') {
+					correct_brackets = 1;
+					break;
+				}
+			}
+
+			while (arr_zn[arr_zn_i - 1] != '(') {
+				if (arr_num_i > 1 && arr_zn_i > 1 && correct_brackets == 1) {
+					arr_num[arr_num_i - 2] = operation(arr_num[arr_num_i - 2], arr_num[arr_num_i - 1], arr_zn[arr_zn_i - 1], &error);
+					arr_num_i -= 1;
+					arr_zn_i -= 1;
+				}
+				else {
+					return 2;
+				}
+			}
+
+			if (error == 1) {
+				return 1;
+			}
+
+			arr_zn_i -= 1;
+			i++;
+			continue;
+		}
+
+		return 2;
 	}
 
 	if (arr_num_i == arr_zn_i + 1) {
@@ -176,13 +205,13 @@ int main() {
 	int arr_num[1001];
 	char arr_zn[1001];
 
-	int is_correct = calc(input, length, arr_num, arr_zn);
+	int status_code = calc(input, length, arr_num, arr_zn);
 
-	if (is_correct == 0) {
+	if (status_code == 0) {
 		printf("%d", arr_num[0]);
 	}
 	else {
-		if (is_correct == 1) {
+		if (status_code == 1) {
 			printf("division by zero");
 		}
 		else {
