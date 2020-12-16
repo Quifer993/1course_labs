@@ -131,7 +131,7 @@ int calc(char input[], int end, int arr_num[], char arr_zn[]) {
 
 		if (arr_zn_i > 0 && i > 0 && input[i] == ')' && input[i - 1] != '(') {
 			int correct_brackets = 0;
-			for (int j = i - 1; j >= 0 || input[j] != '('; j--) {
+			for (int j = i - 1; j >= 0 && input[j] != '('; j--) {
 				if (input[j] <= '9' && input[j] >= '0') {
 					correct_brackets = 1;
 					break;
