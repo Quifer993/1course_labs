@@ -57,6 +57,7 @@ int check_syn(char input[], int const end) {
 	int j = end - 1;
 	while (j >= 0) {
 		if (input[j] == ')') {
+			j--;
 			count_brackets = 1;
 			break;
 		}
