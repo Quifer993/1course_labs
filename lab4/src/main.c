@@ -46,7 +46,7 @@ void create_num(char input[], int* i, int* arr_num_i, int arr_num[], int const e
 		*i = *i + 1;
 	}
 	push(&arr_num[*arr_num_i], number, &*arr_num_i);
-	return 0;
+	return;
 }
 
 int check_syn(char input[], int const end) {
@@ -97,6 +97,8 @@ int check_syn(char input[], int const end) {
 	if (count_brackets > 0) {
 		return SYN_ERR;
 	}
+
+	return OK;
 }
 
 int exe_and_pop(int arr_num[], int* arr_num_i, int arr_zn[], int* arr_zn_i) {
