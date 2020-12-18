@@ -121,10 +121,9 @@ int calc(char input[], int end, int* answer) {
 	int arr_num_i = 0;
 	int arr_zn_i = 0;
 	int error = OK;
-	int cur = 0;
 
 	while (i < end) {
-		cur = input[i];
+		int cur = input[i];
 
 		if (cur == ' ') {}
 
