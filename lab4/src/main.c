@@ -45,7 +45,7 @@ void create_num(char input[], int* i, int* arr_num_i, int arr_num[], int const e
 		number = number * 10 + input[*i + 1] - '0';
 		*i = *i + 1;
 	}
-	push(&arr_num[*arr_num_i], number, &*arr_num_i);
+	push(&arr_num[*arr_num_i], number, *arr_num_i);
 	return;
 }
 
