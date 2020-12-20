@@ -4,9 +4,9 @@
 #include <ctype.h>
 
 
-enum type_error { OK, DIV_BY_ZERO, SYN_ERR };
+enum TypeError { Ok, DivByZero, SynError };
 
-int operation(int first, int second, int op, int* error) {
+int operation(int const first, int const second, int const op, int* error) {
 	if (op == '*') {
 		return first * second;
 	}
@@ -16,7 +16,7 @@ int operation(int first, int second, int op, int* error) {
 			return first / second;
 		}
 		else {
-			*error = DIV_BY_ZERO;
+			*error = DivByZero;
 			return 0;
 		}
 	}
@@ -29,77 +29,76 @@ int operation(int first, int second, int op, int* error) {
 		return first - second;
 	}
 
-	*error = SYN_ERR;
+	*error = SynError;
 	return 0;
 }
 
 void push(int* stack, int const input, int* arr_i) {
 	*stack = input;
 	*arr_i = *arr_i + 1;
-	return;
 }
 
-void create_num(char input[], int* i, int* arr_num_i, int arr_num[], int const end) {
+void create_num(const char input[], int* i, int* arr_num_i, int arr_num[], int const end) {
 	int number = input[*i] - '0';
 	while (*i < end && isdigit(input[*i + 1])) {
 		number = number * 10 + input[*i + 1] - '0';
 		*i = *i + 1;
 	}
 	push(&arr_num[*arr_num_i], number, arr_num_i);
-	return;
 }
 
-int check_syn(char input[], int const end) {
+int check_syn(const char input[], int const end) {
 
 	int count_brackets = 0;
 	int count_num = 0;
 	int count_zn = 0;
 	int j = end - 1;
+
 	while (j >= 0) {
-		if (input[j] == ')') {
-			j--;
+		j--;
+		if (input[j + 1] == ')') {
 			count_brackets = 1;
 			break;
 		}
-		j--;
+
 	}
+
 	while (j >= 0 && count_brackets > 0) {
 		if (input[j] == ' ') {
 			j--;
 			continue;
 		}
+
 		if (isdigit(input[j])) {
-			j--;
 			count_num++;
 
-			while (j >= 0 && isdigit(input[j])) {
+			while (j >= 0 && isdigit(input[j + 1])) {
 				j--;
 			}
 		}
 		else if (input[j] == '+' || input[j] == '-' || input[j] == '*' || input[j] == '/') {
 			count_zn++;
-			j--;
 		}
 		else if (input[j] == ')') {
 			count_brackets++;
-			j--;
 		}
 		else if (input[j] == '(') {
 			count_brackets--;
-			j--;
 		}
 
+		j--;
+
 		if (count_num > count_zn + 1 || count_num < count_zn) {
-			return SYN_ERR;
+			return SynError;
 		}
 	}
 
 
 	if (count_brackets > 0) {
-		return SYN_ERR;
+		return SynError;
 	}
 
-	return OK;
+	return Ok;
 }
 
 int exe_and_pop(int arr_num[], int* arr_num_i, int arr_zn[], int* arr_zn_i) {
@@ -110,10 +109,10 @@ int exe_and_pop(int arr_num[], int* arr_num_i, int arr_zn[], int* arr_zn_i) {
 	return error;
 }
 
-int calc(char input[], int end, int* answer) {
+int calc(const char input[], int const end, int* answer) {
 
-	if (check_syn(input, end) == SYN_ERR) {
-		return SYN_ERR;
+	if (check_syn(input, end) == SynError) {
+		return SynError;
 	}
 
 	int arr_num[502];
@@ -121,7 +120,7 @@ int calc(char input[], int end, int* answer) {
 	int i = 0;
 	int arr_num_i = 0;
 	int arr_zn_i = 0;
-	int error = OK;
+	int error = Ok;
 
 	while (i < end) {
 		int cur = input[i];
@@ -136,7 +135,7 @@ int calc(char input[], int end, int* answer) {
 
 			if (arr_zn_i == 0) {
 				if (arr_num_i == 0 || arr_num_i >= 2) {
-					return SYN_ERR;
+					return SynError;
 				}
 
 				push(&arr_zn[0], cur, &arr_zn_i);
@@ -147,29 +146,27 @@ int calc(char input[], int end, int* answer) {
 			}
 
 			else if (arr_num_i <= 1) {
-				return SYN_ERR;
+				return SynError;
 			}
 
 			else if (cur == '*' || cur == '/') {
-				if (arr_zn[arr_zn_i - 1] == '+' || arr_zn[arr_zn_i - 1] == '-') {
-					push(&arr_zn[arr_zn_i], cur, &arr_zn_i);
-				}
+				if (arr_zn[arr_zn_i - 1] == '+' || arr_zn[arr_zn_i - 1] == '-') {}
 				else {
 					error = exe_and_pop(arr_num, &arr_num_i, arr_zn, &arr_zn_i);
-					push(&arr_zn[arr_zn_i], cur, &arr_zn_i);
 				}
+				push(&arr_zn[arr_zn_i], cur, &arr_zn_i);
 
-				if (error != OK) {
+				if (error != Ok) {
 					return error;
 				}
 
 			}
 			else {
-				while (arr_zn_i > 0 && arr_zn[arr_zn_i - 1] != '(' && error == OK) {
+				while (arr_zn_i > 0 && arr_zn[arr_zn_i - 1] != '(' && error == Ok) {
 					error = exe_and_pop(arr_num, &arr_num_i, arr_zn, &arr_zn_i);
 				}
 
-				if (error != OK) {
+				if (error != Ok) {
 					return error;
 				}
 
@@ -183,16 +180,16 @@ int calc(char input[], int end, int* answer) {
 
 		else if (arr_zn_i > 0 && i > 0 && cur == ')' && input[i - 1] != '(') {
 
-			while (arr_zn[arr_zn_i - 1] != '(' && error == OK) {
+			while (arr_zn[arr_zn_i - 1] != '(' && error == Ok) {
 				if (arr_num_i > 1 && arr_zn_i > 1) {
 					error = exe_and_pop(arr_num, &arr_num_i, arr_zn, &arr_zn_i);
 				}
 				else {
-					return SYN_ERR;
+					return SynError;
 				}
 			}
 
-			if (error != OK) {
+			if (error != Ok) {
 				return error;
 			}
 
@@ -200,27 +197,27 @@ int calc(char input[], int end, int* answer) {
 		}
 
 		else {
-			return SYN_ERR;
+			return SynError;
 		}
 
 		i++;
 	}
 
 	if (arr_num_i == arr_zn_i + 1) {
-		while (arr_zn_i > 0 && error == OK) {
+		while (arr_zn_i > 0 && error == Ok) {
 			error = exe_and_pop(arr_num, &arr_num_i, arr_zn, &arr_zn_i);
 		}
 	}
 	else {
-		return SYN_ERR;
+		return SynError;
 	}
 
-	if (error != OK) {
+	if (error != Ok) {
 		return error;
 	}
 
 	*answer = arr_num[0];
-	return 0;
+	return Ok;
 }
 
 
@@ -249,15 +246,16 @@ int main() {
 	int answer = 0;
 	int status_code = calc(input, length, &answer);
 
-	if (status_code == OK) {
+	if (status_code == Ok) {
 		printf("%d", answer);
 	}
-	else if (status_code == DIV_BY_ZERO) {
+	else if (status_code == DivByZero) {
 		printf("division by zero");
 	}
-	else if (status_code == SYN_ERR) {
+	else if (status_code == SynError) {
 		printf("syntax error");
 	}
 
 	return 0;
 }
+
