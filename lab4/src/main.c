@@ -123,11 +123,7 @@ int calc(const char input[], int const end, int* answer) {
 	s_arr_num.size = 0;
 	STACK s_arr_zn;
 	s_arr_zn.size = 0;
-	int arr_num[502];
-	int arr_zn[1001];
 	int i = 0;
-	int arr_num_i = 0;
-	int arr_zn_i = 0;
 	int error = Ok;
 
 	while (i < end) {
