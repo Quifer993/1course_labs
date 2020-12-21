@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <malloc.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 
 enum TypeError { Ok, DivByZero, SynError };
@@ -41,15 +42,6 @@ int operation(int const first, int const second, int const op, int* error) {
 void push(STACK* s_arr, int const input) {
 	s_arr->arr[s_arr->size] = input;
 	s_arr->size++;
-}
-
-void create_num(const char input[], int* i, STACK* s_arr_num, int const end) {
-	int number = input[*i] - '0';
-	while (*i < end && isdigit(input[*i + 1])) {
-		number = number * 10 + input[*i + 1] - '0';
-		*i = *i + 1;
-	}
-	push(s_arr_num, number);
 }
 
 int check_syn(const char input[], int const end) {
@@ -119,6 +111,7 @@ int calc(const char input[], int const end, int* answer) {
 	s_arr_zn.size = 0;
 	int i = 0;
 	int error = Ok;
+	int* last_num = 0;
 
 	while (i < end) {
 		int cur = input[i];
@@ -126,7 +119,11 @@ int calc(const char input[], int const end, int* answer) {
 		if (cur == ' ') {}
 
 		else if (isdigit(cur)) {
-			create_num(input, &i, &s_arr_num, end);
+			int number = strtol(input + i, &last_num, 10);
+			while (i < end && isdigit(input[i + 1])) {
+				i = i + 1;
+			}
+			push(&s_arr_num, number);
 		}
 
 		else if (cur == '+' || cur == '-' || cur == '*' || cur == '/') {
