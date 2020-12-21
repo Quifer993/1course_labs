@@ -111,7 +111,7 @@ int calc(const char input[], int const end, int* answer) {
 	s_arr_zn.size = 0;
 	int i = 0;
 	int error = Ok;
-	int last_num = 0;
+	char* last_num = 0;
 
 	while (i < end) {
 		int cur = input[i];
@@ -119,7 +119,7 @@ int calc(const char input[], int const end, int* answer) {
 		if (cur == ' ') {}
 
 		else if (isdigit(cur)) {
-			int number = strtol(input + i, last_num, 10);
+			int number = strtol(input + i, &last_num, 10);
 			while (i < end && isdigit(input[i + 1])) {
 				i = i + 1;
 			}
