@@ -42,12 +42,6 @@ void push(STACK* s_arr, int const input) {
 	s_arr->arr[s_arr->size] = input;
 	s_arr->size++;
 }
-/*
-void push(int* stack, int const input, int* arr_i) {
-	*stack = input;
-	*arr_i = *arr_i + 1;
-}
-*/
 
 void create_num(const char input[], int* i, STACK* s_arr_num, int const end) {
 	int number = input[*i] - '0';
