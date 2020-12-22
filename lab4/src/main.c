@@ -5,12 +5,12 @@
 #include <stdlib.h>
 
 
-enum TypeError { Ok, DivByZero, SynError };
+enum TypeError { OK, DIV_BY_ZERO, SYN_ERR };
 
 typedef struct {
 	int arr[1001];
 	int size;
-}STACK;
+}Stack;
 
 int operation(int const first, int const second, int const op, int* error) {
 	if (op == '*') {
@@ -22,7 +22,7 @@ int operation(int const first, int const second, int const op, int* error) {
 			return first / second;
 		}
 		else {
-			*error = DivByZero;
+			*error = DIV_BY_ZERO;
 			return 0;
 		}
 	}
@@ -35,11 +35,11 @@ int operation(int const first, int const second, int const op, int* error) {
 		return first - second;
 	}
 
-	*error = SynError;
+	*error = SYN_ERR;
 	return 0;
 }
 
-void push(STACK* s_arr, int const input) {
+void push(Stack* s_arr, int const input) {
 	s_arr->arr[s_arr->size] = input;
 	s_arr->size++;
 }
@@ -74,26 +74,30 @@ int check_syn(const char input[], int const end) {
 			count_zn++;
 		}
 		else {
-			return SynError;
+			return SYN_ERR;
 		}
 		j--;
 
 		if (count_num > count_zn + 1 || count_num < count_zn || count_brackets < 0) {
-			return SynError;
+			return SYN_ERR;
 		}
 	}
 
 
 	if (count_brackets > 0) {
-		return SynError;
+		return SYN_ERR;
 	}
 
-	return Ok;
+	return OK;
 }
 
-int exe_and_pop(STACK* s_arr_num, STACK* s_arr_zn) {
+int peek(Stack* s_arr) {
+	return s_arr->arr[s_arr->size - 1];
+}
+
+int exe_and_pop(Stack* s_arr_num, Stack* s_arr_zn) {
 	int error = 0;
-	s_arr_num->arr[s_arr_num->size - 2] = operation(s_arr_num->arr[s_arr_num->size - 2], s_arr_num->arr[s_arr_num->size - 1], s_arr_zn->arr[s_arr_zn->size - 1], &error);
+	s_arr_num->arr[s_arr_num->size - 2] = operation(s_arr_num->arr[s_arr_num->size - 2], peek(s_arr_num), peek(s_arr_zn), &error);
 	s_arr_num->size -= 1;
 	s_arr_zn->size -= 1;
 	return error;
@@ -101,20 +105,20 @@ int exe_and_pop(STACK* s_arr_num, STACK* s_arr_zn) {
 
 int calc(const char input[], int const end, int* answer) {
 
-	if (check_syn(input, end) == SynError) {
-		return SynError;
+	if (check_syn(input, end) == SYN_ERR) {
+		return SYN_ERR;
 	}
 
-	STACK s_arr_num;
+	Stack s_arr_num;
 	s_arr_num.size = 0;
-	STACK s_arr_zn;
+	Stack s_arr_zn;
 	s_arr_zn.size = 0;
 	int i = 0;
-	int error = Ok;
-	char* last_num = 0;
+	int error = OK;
 
 	while (i < end) {
 		int cur = input[i];
+		char* last_num = 0;
 
 		if (cur == ' ') {}
 
@@ -132,28 +136,27 @@ int calc(const char input[], int const end, int* answer) {
 				push(&s_arr_zn, cur);
 			}
 
-			else if (s_arr_zn.arr[s_arr_zn.size - 1] == '(') {
+			else if (peek(&s_arr_zn) == '(') {
 				push(&s_arr_zn, cur);
 			}
 
 			else if (cur == '*' || cur == '/') {
-				if (s_arr_zn.arr[s_arr_zn.size - 1] == '+' || s_arr_zn.arr[s_arr_zn.size - 1] == '-') {}
-				else {
+				if (peek(&s_arr_zn) != '+' && peek(&s_arr_zn) != '-') {
 					error = exe_and_pop(&s_arr_num, &s_arr_zn);
 				}
 				push(&s_arr_zn, cur);
 
-				if (error != Ok) {
+				if (error != OK) {
 					return error;
 				}
 
 			}
 			else {
-				while (s_arr_zn.size > 0 && s_arr_zn.arr[s_arr_zn.size - 1] != '(' && error == Ok) {
+				while (s_arr_zn.size > 0 && peek(&s_arr_zn) != '(' && error == OK) {
 					error = exe_and_pop(&s_arr_num, &s_arr_zn);
 				}
 
-				if (error != Ok) {
+				if (error != OK) {
 					return error;
 				}
 
@@ -167,11 +170,11 @@ int calc(const char input[], int const end, int* answer) {
 
 		else if (s_arr_zn.size > 0 && i > 0 && cur == ')' && input[i - 1] != '(') {
 
-			while (s_arr_zn.arr[s_arr_zn.size - 1] != '(' && error == Ok) {
+			while (peek(&s_arr_zn) != '(' && error == OK) {
 				error = exe_and_pop(&s_arr_num, &s_arr_zn);
 			}
 
-			if (error != Ok) {
+			if (error != OK) {
 				return error;
 			}
 			s_arr_zn.size = s_arr_zn.size - 1;
@@ -179,16 +182,16 @@ int calc(const char input[], int const end, int* answer) {
 		i++;
 	}
 
-	while (s_arr_zn.size > 0 && error == Ok) {
+	while (s_arr_zn.size > 0 && error == OK) {
 		error = exe_and_pop(&s_arr_num, &s_arr_zn);
 	}
 
-	if (error != Ok) {
+	if (error != OK) {
 		return error;
 	}
 
 	*answer = s_arr_num.arr[0];
-	return Ok;
+	return OK;
 }
 
 
@@ -217,13 +220,13 @@ int main() {
 	int answer = 0;
 	int status_code = calc(input, length, &answer);
 
-	if (status_code == Ok) {
+	if (status_code == OK) {
 		printf("%d", answer);
 	}
-	else if (status_code == DivByZero) {
+	else if (status_code == DIV_BY_ZERO) {
 		printf("division by zero");
 	}
-	else if (status_code == SynError) {
+	else if (status_code == SYN_ERR) {
 		printf("syntax error");
 	}
 
