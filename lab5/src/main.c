@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
-//#pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -158,10 +158,13 @@ void write_text(Letter_code arr_code[],FILE* in ,FILE* out, int size, unsigned c
 	byte &= 255 << (8 - last_sym_size);
 
 	rewind(in);
-	char* useless = "23123";
+	char useless = 0;
 	unsigned char letter;
-	if (fgets(useless, 1000, in) == NULL) {
-		exit(EXIT_FAILURE);
+	while (useless != '\n') {
+		useless = fgetc(in);
+		if (feof(in) != 0) {
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	unsigned char code = 0;
@@ -406,7 +409,7 @@ int main() {
 	FILE* file_input;
 	FILE* file_output;
 
-	if ((file_input = fopen("in.txt", "rb")) == NULL){
+	if ((file_input = fopen("in.txt", "rb+")) == NULL){
 		return 0;
 	}
 
