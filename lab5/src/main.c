@@ -160,7 +160,7 @@ void write_text(Letter_code arr_code[],FILE* in ,FILE* out, int size, unsigned c
 	rewind(in);
 	char* useless = "23123";
 	unsigned char letter;
-	if (fgets(useless, 1000, in) == EOF) {
+	if (fgets(useless, 1000, in) == NULL) {
 		exit(EXIT_FAILURE);
 	}
 
