@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#pragma warning(disable : 4996)
+//#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -105,33 +105,8 @@ void make_alphabet(Tree* tree, unsigned char* bits, int* high_now, Letter_code a
 	*high_now -= 1;
 
 	if (tree->right == NULL && tree->left == NULL) {
-		unsigned char code_bit = 0;
-		unsigned char code = 0;
-		//
-		
-	
-		/*for (int i = 0; i < *high_now; i++) {
-			code = *bits << i;
-			code_bit = code >> (8 - *high_now);
-
-			printf("%i", code_bit);
-		}*/
-		
 		arr_code[tree->byte].size = *high_now;
 		arr_code[tree->byte].code = *bits;
-
-		/*
-
-		printf("%c: ", tree->byte);
-		for (int i = 0; i < *high_now; i++) {
-			code = *bits << i;
-			code_bit = code >> 7;
-
-			printf("%i", code_bit);
-		}
-		printf("\n");
-
-		*/
 	}
 }
 
@@ -183,9 +158,11 @@ void write_text(Letter_code arr_code[],FILE* in ,FILE* out, int size, unsigned c
 	byte &= 255 << (8 - last_sym_size);
 
 	rewind(in);
-	char* useless;
+	char* useless = "23123";
 	unsigned char letter;
-	fgets(&useless, 1000, in);
+	if (fgets(useless, 1000, in) == EOF) {
+		exit(EXIT_FAILURE);
+	}
 
 	unsigned char code = 0;
 	unsigned char code1 = 0;
@@ -233,7 +210,6 @@ int write_alphabet(Tree* node ,FILE* out, int size, unsigned char* last_sym) {
 	find_lists(node, &high_now, bits, &point);
 	//unsigned char* bytes = (char*)malloc((size_tree - 1) / 8 * sizeof(char));
 	*last_sym = bits_to_bytes(bits, point, out);
-	int i;
 	int mod = point - point / 8 * 8;
 
 	free(bits);
@@ -292,10 +268,9 @@ void coder(FILE* in, FILE* out) {
 		qsort(arr_node, j + 1, sizeof(arr_node[0]), compare);
 	}
 
-	int flag = 0;
 	unsigned char bits = 0;
 	int high_now = 1;
-	Letter_code arr_code[256]; //(Letter_code*)malloc(256 * sizeof(Letter_code));
+	Letter_code arr_code[256];
 	make_alphabet(arr_node[0], &bits, &high_now, arr_code);
 
 	write_uint(size_text, out);
@@ -313,7 +288,6 @@ void coder(FILE* in, FILE* out) {
 //decoder fun
 void read_uint(FILE* input, unsigned int* result) {
 	unsigned char letter = 0;
-	int bit;
 	for (int i = 0; i < 4; i++) {
 		if (fscanf(input, "%c", &letter) == EOF) {
 			exit(EXIT_FAILURE);
