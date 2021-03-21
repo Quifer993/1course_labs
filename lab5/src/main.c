@@ -212,7 +212,7 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 }
 
 
-int write_alphabet(Tree* node , FILE* in, FILE* out, int size, unsigned char* last_sym) {
+int write_alphabet(FILE* in, FILE* out, Tree* node, int size, unsigned char* last_sym) {
 
 	int high_now = 1;
 	int pow = 0;
@@ -297,7 +297,7 @@ void coder(FILE* in, FILE* out) {
 	write_uint(size_text, out);
 
 	unsigned char last_sym;
-	unsigned char last_symbol_size = write_alphabet(in, out, arr_node[0], out, size, &last_sym);
+	unsigned char last_symbol_size = write_alphabet(in, out, arr_node[0], size, &last_sym);
 
 	write_text(arr_code, in, out, size_text, last_symbol_size, last_sym);
 
