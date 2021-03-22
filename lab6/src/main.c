@@ -9,37 +9,62 @@ typedef struct Tree {
 	struct Tree* left;
 	struct Tree* right;
 	int value;
-	int height;
+	int balance;
 }Tree;
 
 
-Tree* make_node(Tree* left, Tree* right, int value, int height) {
-	Tree* node = (Tree*)malloc(sizeof(Tree));
-	if (node == NULL) {
-		exit(EXIT_FAILURE);
+void small_rotate_left(Tree* root) {
+	Tree* old_root = root;
+
+	if (old_root->left != NULL) {
+		old_root->left = root->left->right;
 	}
-	node->left = left;
-	node->right = right;
-	node->value = value;
-	node->height = height;
-	return node;
+	root = root->right;
+	root->left = old_root;
+
+
 }
 
 
-void delete_tree(Tree* tree) {
-	if (tree->left != NULL)
-		delete_tree(tree->left);
+Tree* small_rotate_right(Tree* root) {
 
-	if (tree->right != NULL)
-		delete_tree(tree->right);
-	free(tree);
+
+
+	Tree* old_root_r = root->right;
+	Tree* old_root_1 = root->right;
+	Tree* old_root_2 = root->left;
+	Tree* old_root_3 = root->left->right;
+
+
+
+	if (root->left->right != NULL) {
+		old_root->left = root->left->right;
+	}
+	else {
+		old_root->left = NULL;
+	}
+
+	root = root->left;
+	root->right = old_root;
+
+	//root->right->balance = abs(root->right->left->balance) - abs(root->right->right->balance);
+	//root->balance = abs(root->left->balance) - abs(root->right->balance);
+	return root;
 }
 
 
+void big_rotate_left(Tree* node) {
+	small_rotate_right(node);
+	small_rotate_left(node);
+}
 
-void small_rotate(Tree** node) {
+
+void big_rotate_right(Tree* node) {
+	small_rotate_left(node);
+	small_rotate_right(node);
 
 }
+
 
 
 int maximum(int a, int b) {
@@ -54,52 +79,104 @@ int maximum(int a, int b) {
 
 int check_high(Tree* tree) {
 	if (tree != NULL) {
-		return maximum(check_high(tree->left), check_high(tree->right) + 1);
+		return maximum(check_high(tree->left), check_high(tree->right)) + 1;
 	}
-	
 	return 0;
-
-	/*if (tree->left != NULL) {
-		*high_now += 1;
-		check_high(tree->left, high_max, high_now);
-	}
-
-	if (tree->right != NULL) {
-		*high_now += 1;
-		check_high(tree->right, high_max, high_now);
-	}
-
-	if (*high_max < *high_now) {
-		*high_max = *high_now;
-	}
-
-	*high_now -= 1;
-	*/
 }
 
 
-void check_root(Tree* node, int num, int height) {
-	if (node->value < num) {
-		if (node->right == NULL) {
-			node->right = make_node(NULL, NULL, num, height + 1);
+void use_rotate(Tree* root, int* rotate_flag) {
+	if (*rotate_flag != 0) {
+
+		if (*rotate_flag == 1) {
+			if (root->balance == 2) {
+				small_rotate_left(root);
+			}
+			if (root->balance == -2) {
+				big_rotate_right(root);
+			}
 		}
 		else {
-			check_root(node->right, num, height + 1);
+			if (root->balance == -2) {
+				root = small_rotate_right(root);
+			}
+			if (root->balance == 2) {
+				big_rotate_left(root);
+			}
+		}
+
+		*rotate_flag = root->balance;
+	}
+}
+
+
+int check_balance(Tree* node) {
+	return check_high(node->right) - check_high(node->left);
+}
+
+
+void put_node(Tree* root, Tree* node, int* rotate_flag) {
+
+
+	if (root->value >= node->value) {
+		if (root->left != NULL) {
+			put_node(root->left, node, rotate_flag);
+			root->balance = check_balance(root);
+			use_rotate(root, rotate_flag);
+
+		}
+		else { 
+			root->left = node;
+			root->balance -= 1;
+
+			if (root->balance == -1) {
+				*rotate_flag = -1;
+			}
 		}
 	}
 	else {
-		if (node->left == NULL) {
-			node->left = make_node(NULL, NULL, num, height + 1);
+
+		if (root->right != NULL) {
+			put_node(root->right, node, rotate_flag);
+			root->balance = check_balance(root);
+			use_rotate(root, rotate_flag);
+		
+
 		}
 		else {
-			check_root(node->left, num, height + 1);
+			root->right = node;
+			root->balance += 1;
+
+			if (root->balance == 1) {
+				*rotate_flag = 1;
+			}
 		}
 	}
 
-	if (check_high(node->left) - check_high(node->right) > 1) {
-		printf("2");
+}
+
+
+void create_avl_tree(Tree* array_num,int size) {
+	
+	int num;
+
+	if (scanf("%i", &num) == EOF) {
+		exit(EXIT_FAILURE);
 	}
 
+	array_num[0].value = num;
+	Tree root = array_num[0];
+	int rotate_flag = 0;
+	for (int i = 1; i < size; i++) {
+		if(scanf("%i", &num) == EOF) {
+			exit(EXIT_FAILURE);
+		}
+		array_num[i].value = num;
+		put_node(&array_num[0], &array_num[i], &rotate_flag);
+		rotate_flag = 0;
+	}
+
+	printf("%i", check_high(&array_num[0]));
 }
 
 
@@ -113,32 +190,11 @@ int main() {
 		printf("0");
 		return 0;
 	}
-		
+	
+	Tree* array_num = (Tree*)calloc(size, sizeof(Tree));
 
-	int num;
-	Tree* root = make_node(NULL, NULL, 0, 1);
-	if (scanf("%i", &num) != EOF) {
-		root->value = num;
-	}
-	else {
-		return 0;
-	}
+	create_avl_tree(array_num, size);
 
-	int  height = 1;
-	while (scanf("%i", &num) != EOF) {
-		check_root(root, num, height); 
-
-		//Tree* node= make_node(NULL, NULL, 0, 1);
-	}
-
-	int high_now = 1;
-	int high_max = 1;
-	high_max = check_high(root);
-	printf("%i", high_max);
-	/*int i = 0;
-	while (size >= pow(2, i)) {
-		i++;
-	}
-	printf("%i", i);*/
-	delete_tree(root);
+	free(array_num);
+	return 0;
 }
