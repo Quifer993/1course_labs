@@ -2,12 +2,12 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
-//#pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
 	int count;
-	unsigned char byte;
+	unsigned char* byte;
 	struct Tree* left;
 	struct Tree* right;
 }Tree;
