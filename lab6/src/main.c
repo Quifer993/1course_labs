@@ -13,7 +13,7 @@ typedef struct Tree {
 }Tree;
 
 
-void small_rotate_left(Tree** root) {
+Tree* small_rotate_left(Tree** root) {
 	Tree* old_root = *root;
 	Tree* old = (*root)->right;
 
@@ -23,19 +23,21 @@ void small_rotate_left(Tree** root) {
 
 	(*root)->left = old_root;
 
-	
+	return *root;
 }
 
 
-void small_rotate_right(Tree* root) {
-	Tree* old_root = root;
-	Tree* old = (root)->left;
+Tree* small_rotate_right(Tree** root) {
+	Tree* old_root = *root;
+	Tree* old = (*root)->left;
 
 	root = &old;
-	old_root->left = (root)->right;
+	old_root->left = (*root)->right;
 
 	
-	(root)->right = old_root;
+	(*root)->right = old_root;
+
+	return *root;
 }
 
 
@@ -79,16 +81,16 @@ void use_rotate_left(Tree* node) {
 
 	if (balance == 2) {
 		if (check_balance(node->left->right) == -1) {
-			small_rotate_right(node);
+			node->left = small_rotate_right(node);
 		}
-		small_rotate_left(node);
+		node->left = small_rotate_left(&(node->left));
 		//small_rotate_left(root);
 	}
 	if (balance == -2) {
 		if (check_balance(node->left->left) == 1) {
-			small_rotate_left(&(node->left));
+			node->left = small_rotate_left(&(node->left));
 		}
-		small_rotate_right(node->left);
+		node->left = small_rotate_right(node->left);
 	}
 }
 
@@ -98,16 +100,16 @@ void use_rotate_right(Tree* node) {
 
 	if (balance == 2) {
 		if (check_balance(node->right->left) == 1) {
-			small_rotate_right(&(node->right));
+			node->right = small_rotate_right(&(node->right));
 		}
-		small_rotate_left(&(node->right));
+		node->right = small_rotate_left(&(node->right));
 		//small_rotate_left(root);
 	}
 	if (balance == -2) {
 		if (check_balance(node->right->left) == 1) {
-			small_rotate_left(&(node->right));
+			node->right = small_rotate_left(&(node->right));
 		}
-		small_rotate_right(&(node->right));
+		node->right = small_rotate_right(&(node->right));
 	}
 
 }
