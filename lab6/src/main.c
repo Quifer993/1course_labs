@@ -93,19 +93,17 @@ Tree* small_rotate_right(Tree* root) {
 
 
 int check_balance(Tree* node) {
-	int balance;
-
 	if (node == NULL) {
 		return 0;
 	}
 	if (node->left == NULL) {
-		return balance = node->right->high;
+		return node->right->high;
 	}
 	else if (node->right == NULL) {
-		return balance = -(node->left->high);
+		return -(node->left->high);
 	}
 	else {
-		return balance = node->right->high - node->left->high;
+		return node->right->high - node->left->high;
 	}
 
 	//return node->right->high - node->left->high;
