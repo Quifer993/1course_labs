@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -50,15 +49,6 @@ int fix_high(Tree* node) {
 
 
 Tree* small_rotate_left(Tree* root) {
-	//Tree* old_root = root;
-	//Tree* old = (root)->right;
-
-	//root = &old;
-	//old_root->right = (root)->left;
-
-
-	//(root)->left = old_root;
-
 	Tree* new_root = root->right;
 	root->right = new_root->left;
 	new_root->left = root;
@@ -71,16 +61,6 @@ Tree* small_rotate_left(Tree* root) {
 
 
 Tree* small_rotate_right(Tree* root) {
-	/*Tree* old_root = *root;
-	Tree* old = (*root)->left;
-
-	root = &old;
-	old_root->left = (*root)->right;
-
-	
-	(*root)->right = old_root;
-
-	return *root;*/
 	Tree* new_root = root->left;
 	root->left = new_root->right;
 	new_root->right = root;
@@ -105,49 +85,8 @@ int check_balance(Tree* node) {
 	else {
 		return node->right->high - node->left->high;
 	}
-
-	//return node->right->high - node->left->high;
 }
 
-/*
-void use_rotate_left(Tree* node) {
-	int balance = check_balance(node->left);
-
-	if (balance == 2) {
-		if (check_balance(node->left->right) == -1) {
-			node->left = small_rotate_right(node->left->right);
-		}
-		node->left = small_rotate_left(node->left);
-		//small_rotate_left(root);
-	}
-	if (balance == -2) {
-		if (check_balance(node->left->left) == 1) {
-			node->left = small_rotate_left(node->left->left);
-		}
-		node->left = small_rotate_right(node->left);
-	}
-}
-
-
-void use_rotate_right(Tree* node) {
-	int balance = check_balance(node->right);
-
-	if (balance == 2) {
-		if (check_balance(node->right->left) == 1) {
-			node->right = small_rotate_right(node->right);
-		}
-		node->right = small_rotate_left(node->right);
-		//small_rotate_left(root);
-	}
-	if (balance == -2) {
-		if (check_balance(node->right->left) == 1) {
-			node->right = small_rotate_left(node->right);
-		}
-		node->right = small_rotate_right(node->right);
-	}
-
-}
-*/
 
 Tree* use_rotate(Tree* node) {
 	int balance = check_balance(node);
@@ -157,7 +96,6 @@ Tree* use_rotate(Tree* node) {
 			node->right = small_rotate_right(node->right);
 		}
 		node = small_rotate_left(node);
-		//small_rotate_left(root);
 	}
 	if (balance == -2) {
 		if (check_balance(node->left) == 1) {
@@ -184,7 +122,6 @@ void choose_max_high(Tree* node) {
 
 
 void put_node(Tree* root, Tree* node) {
-
 	if (root->value >= node->value) {
 		if (root->left != NULL) {
 			put_node(root->left, node);
@@ -212,7 +149,6 @@ void put_node(Tree* root, Tree* node) {
 
 
 void create_avl_tree(int size) {
-
 	Tree* array_num = (Tree*)calloc(size, sizeof(Tree));
 	int num;
 
@@ -242,7 +178,7 @@ void create_avl_tree(int size) {
 	free(root);
 }
 
-//ready
+
 int main() {
 	int size;
 	if (scanf("%i", &size) == EOF) {
