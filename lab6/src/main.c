@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -11,6 +11,24 @@ typedef struct Tree {
 	int value;
 	int high;
 }Tree;
+
+
+int maximum(int a, int b) {
+	if (a > b) {
+		return a;
+	}
+	else {
+		return b;
+	}
+}
+
+
+int check_high(Tree* tree) {
+	if (tree != NULL) {
+		return maximum(check_high(tree->left), check_high(tree->right)) + 1;
+	}
+	return 0;
+}
 
 
 int fix_high(Tree* node) {
@@ -71,24 +89,6 @@ Tree* small_rotate_right(Tree* root) {
 	new_root->high = fix_high(new_root);
 
 	return new_root;
-}
-
-
-int maximum(int a, int b) {
-	if (a > b) {
-		return a;
-	}
-	else {
-		return b;
-	}
-}
-
-
-int check_high(Tree* tree) {
-	if (tree != NULL) {
-		return maximum(check_high(tree->left), check_high(tree->right)) + 1;
-	}
-	return 0;
 }
 
 
@@ -180,7 +180,7 @@ void choose_max_high(Tree* node) {
 		node->high = node->left->high + 1;
 	}
 	else {
-		node->high = max(node->left->high, node->right->high) + 1;
+		node->high = maximum(node->left->high, node->right->high) + 1;
 	}
 }
 
