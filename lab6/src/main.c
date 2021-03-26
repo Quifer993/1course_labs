@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-#pragma warning(disable : 4996)
+//#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -228,9 +228,6 @@ void create_avl_tree(int size) {
 	Tree* root = (Tree*)calloc(1, sizeof(Tree));
 	root->left = &array_num[0];
 
-
-	int rotate_flag = 0;
-	int balance = 0;
 	for (int i = 1; i < size; i++) {
 		if(scanf("%i", &num) == EOF) {
 			free(array_num);
