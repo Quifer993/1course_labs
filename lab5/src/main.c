@@ -2,7 +2,7 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
-//#pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -468,8 +468,8 @@ int main() {
 		return 0;
 	}
 
-	char* useless2;
-	if (fgets(&useless2, 10, file_input) == NULL) {
+	char useless2[10];
+	if (fgets(useless2, 10, file_input) == NULL) {
 		close_file(file_input, file_output, EXIT_FAILURE);
 	}
 	
