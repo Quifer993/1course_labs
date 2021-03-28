@@ -203,7 +203,6 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 	}
 
 	unsigned char code = 0;
-	unsigned char code1 = 0;
 
 	for (int i = 0; i < size; i++) {
 
@@ -211,13 +210,13 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 			close_file(in, out, EXIT_FAILURE);
 		}
 		for (int j = 0; j < arr_code[letter].size; j++) {
-			code1 = arr_code[letter].code[j];
+			code = arr_code[letter].code[j];
 
 
-			//printf("%i", code1);
+			//printf("%i", code);
 			point++;
 			byte >>= (8 - point);
-			byte |= code1;
+			byte |= code;
 			byte <<= (8 - point);
 			if (point == 8) {
 				//fprintf(out, "%c", n, name);
@@ -469,7 +468,10 @@ int main() {
 		return 0;
 	}
 
-	char* useless2 = fgets(&useless2, 10, file_input);;
+	char* useless2;
+	if (fgets(&useless2, 10, file_input) == NULL) {
+		close_file(file_input, file_output, EXIT_FAILURE);
+	}
 	
 	if (mode_of_work == 'c') {
 		coder(file_input, file_output);
