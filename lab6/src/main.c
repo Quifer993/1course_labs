@@ -2,13 +2,18 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
+#pragma warning(disable : 4996)
+
+typedef struct Node {
+	struct Node* left;
+	struct Node* right;
+	int value;
+	int height;
+}Node;
 
 
 typedef struct Tree {
-	struct Tree* left;
-	struct Tree* right;
-	int value;
-	int high;
+	struct Node* root;
 }Tree;
 
 
@@ -22,73 +27,73 @@ int maximum(int a, int b) {
 }
 
 
-int check_high(Tree* tree) {
-	if (tree != NULL) {
-		return maximum(check_high(tree->left), check_high(tree->right)) + 1;
+int check_height(Node* Node) {
+	if (Node != NULL) {
+		return maximum(check_height(Node->left), check_height(Node->right)) + 1;
 	}
 	return 0;
 }
 
 
-int fix_high(Tree* node) {
+int fix_height(Node* node) {
 	if (node->right != NULL && node->left != NULL) {
-		return maximum(node->left->high, node->right->high) + 1;
+		return maximum(node->left->height, node->right->height) + 1;
 	}
 	else if (node->right == NULL && node->left == NULL) {
 		return 1;
 	}
 	else if (node->left != NULL) {
-		return  node->left->high + 1;
+		return  node->left->height + 1;
 	}
 	else {
-		return  node->right->high + 1;
+		return  node->right->height + 1;
 	}
 
 	
 }
 
 
-Tree* small_rotate_left(Tree* root) {
-	Tree* new_root = root->right;
+Node* small_rotate_left(Node* root) {
+	Node* new_root = root->right;
 	root->right = new_root->left;
 	new_root->left = root;
 
-	root->high = fix_high(root);
-	new_root->high = fix_high(new_root);
+	root->height = fix_height(root);
+	new_root->height = fix_height(new_root);
 	
 	return new_root;
 }
 
 
-Tree* small_rotate_right(Tree* root) {
-	Tree* new_root = root->left;
+Node* small_rotate_right(Node* root) {
+	Node* new_root = root->left;
 	root->left = new_root->right;
 	new_root->right = root;
 
-	root->high = fix_high(root);
-	new_root->high = fix_high(new_root);
+	root->height = fix_height(root);
+	new_root->height = fix_height(new_root);
 
 	return new_root;
 }
 
 
-int check_balance(Tree* node) {
-	if (node == NULL) {
+int check_balance(Node* node) {
+	if (node->left == NULL && node->right == NULL || node == NULL) {
 		return 0;
 	}
 	if (node->left == NULL) {
-		return node->right->high;
+		return node->right->height;
 	}
 	else if (node->right == NULL) {
-		return -(node->left->high);
+		return -(node->left->height);
 	}
 	else {
-		return node->right->high - node->left->high;
+		return node->right->height - node->left->height;
 	}
 }
 
 
-Tree* use_rotate(Tree* node) {
+Node* use_rotate(Node* node) {
 	int balance = check_balance(node);
 
 	if (balance == 2) {
@@ -108,89 +113,112 @@ Tree* use_rotate(Tree* node) {
 }
 
 
-void choose_max_high(Tree* node) {
+void choose_max_height(Node* node) {
 	if (node->left == NULL) {
-		node->high = node->right->high + 1;
+		node->height = node->right->height + 1;
 	}
 	else if(node->right == NULL){
-		node->high = node->left->high + 1;
+		node->height = node->left->height + 1;
 	}
 	else {
-		node->high = maximum(node->left->high, node->right->high) + 1;
+		node->height = maximum(node->left->height, node->right->height) + 1;
 	}
 }
 
 
-void put_node(Tree* root, Tree* node) {
-	if (root->value >= node->value) {
+Node* put_node(Node* root, Node* node) {
+	if (root == NULL) {
+		//root = node;
+		node->height = 1;
+		return node;
+	}
+	else if (root->value >= node->value) {
 		if (root->left != NULL) {
-			put_node(root->left, node);
+			root->left = put_node(root->left, node);
 			root->left = use_rotate(root->left);
 
 		}
 		else { 
 			root->left = node;
-			root->left->high = 1;
+			root->left->height = 1;
 		}
 	}
 	else {
 		if (root->right != NULL) {
-			put_node(root->right, node);
+			root->right = put_node(root->right, node);
 			root->right = use_rotate(root->right);
 		}
 		else {
 			root->right = node;
-			root->right->high = 1;
+			root->right->height = 1;
 		}
 	}
 
-	choose_max_high(root);
+	choose_max_height(root);
+	return root;
 }
 
 
-void create_avl_tree(int size) {
-	Tree* array_num = (Tree*)calloc(size, sizeof(Tree));
+void create_avl_tree(FILE* input_file, FILE* output_file, int size, Node* array_num, Tree* tree) {
 	int num;
 
-	if (scanf("%i", &num) == EOF) {
-		exit(EXIT_FAILURE);
-	}
-
-	array_num[0].value = num;
-	array_num[0].high = 1;
-
-	Tree* root = (Tree*)calloc(1, sizeof(Tree));
-	root->left = &array_num[0];
-
-	for (int i = 1; i < size; i++) {
-		if(scanf("%i", &num) == EOF) {
+	for (int i = 0; i < size; i++) {//раньше с 1 
+		if(fscanf(input_file, "%i", &num) == EOF) {
 			free(array_num);
-			free(root);
+			fclose(input_file);
+			fclose(output_file);
 			exit(EXIT_FAILURE);
 		}
 		array_num[i].value = num;
-		put_node(root->left, &array_num[i]);
-		root->left = use_rotate(root->left);
+		tree->root = put_node(tree->root, &array_num[i]);
+		tree->root = use_rotate(tree->root);
 	}
-
-	printf("%i", root->left->high);
-	free(array_num);
-	free(root);
 }
 
 
 int main() {
+	FILE* input_file;
+	FILE* output_file;
+
+	if ((input_file = fopen("in.txt", "r")) == NULL) {
+		return EXIT_SUCCESS;
+	}
+
+	if ((output_file = fopen("out.txt", "w")) == NULL) {
+		fclose(input_file);
+		return EXIT_SUCCESS;
+	}
+
+
 	int size;
-	if (scanf("%i", &size) == EOF) {
-		return 0;
+	if (fscanf( input_file, "%i", &size ) == EOF) {
+		fclose(input_file);
+		fclose(output_file);
+		return EXIT_SUCCESS;
 	}
 
 	if (size == 0) {
-		printf("0");
-		return 0;
+		fputc('0', output_file);
+	}
+	else {
+		Node* array_num = (Node*)calloc(size, sizeof(Node));
+		if (array_num == NULL) {
+			fclose(input_file);
+			fclose(output_file);
+			return EXIT_FAILURE;
+		}
+
+		Tree tree;
+		tree.root = 0;
+		create_avl_tree(input_file, output_file, size, array_num, &tree);
+
+		fprintf(output_file, "%i", tree.root->height);
+
+		free(array_num);
+
 	}
 
-	create_avl_tree(size);
-
-	return 0;
+	fclose(input_file);
+	fclose(output_file);
+	return EXIT_SUCCESS;
 }
