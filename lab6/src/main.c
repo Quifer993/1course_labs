@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 
 typedef struct Node {
 	struct Node* left;
@@ -78,7 +78,10 @@ Node* small_rotate_right(Node* root) {
 
 
 int check_balance(Node* node) {
-	if ( (node->left == NULL && node->right == NULL) || node == NULL) {
+	if (node == NULL) {
+		return 0;
+	}
+	if ( node->left == NULL && node->right == NULL) {
 		return 0;
 	}
 	if (node->left == NULL) {
@@ -215,7 +218,6 @@ int main() {
 		fprintf(output_file, "%i", tree.root->height);
 
 		free(array_num);
-
 	}
 
 	fclose(input_file);
