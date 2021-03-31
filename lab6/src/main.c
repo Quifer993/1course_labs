@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-#pragma warning(disable : 4996)
+//#pragma warning(disable : 4996)
 
 
 typedef struct Node {
@@ -163,7 +163,7 @@ Node* put_node(Node* root, Node* node) {
 }
 
 
-int create_avl_tree(FILE* input_file, FILE* output_file, int size, Node* array_num, Tree* tree) {
+int create_avl_tree(FILE* input_file, int size, Node* array_num, Tree* tree) {
 	int num;
 
 	for (int i = 0; i < size; i++) {
@@ -222,7 +222,7 @@ int main() {
 
 		Tree tree;
 		tree.root = 0;
-		if (create_avl_tree(input_file, output_file, size, array_num, &tree) == 0) {
+		if (create_avl_tree(input_file, size, array_num, &tree) == 0) {
 			fprintf(output_file, "%i", tree.root->height);
 		}
 
