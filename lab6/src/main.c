@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-#pragma warning(disable : 4996)
+
 
 typedef struct Node {
 	struct Node* left;
