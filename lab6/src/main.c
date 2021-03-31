@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
-//#pragma warning(disable : 4996)
 
 
 typedef struct Node {
@@ -132,7 +131,6 @@ void choose_max_height(Node* node) {
 
 Node* put_node(Node* root, Node* node) {
 	if (root == NULL) {
-		//root = node;
 		node->height = 1;
 		return node;
 	}
@@ -169,11 +167,7 @@ int create_avl_tree(FILE* input_file, int size, Node* array_num, Tree* tree) {
 	for (int i = 0; i < size; i++) {
 		
 		if(fscanf(input_file, "%i", &num) == EOF) {
-			//free(array_num);
-			//fclose(input_file);
-			//fclose(output_file);
-			//exit(EXIT_FAILURE);
-			return 1;
+			return EXIT_FAILURE;
 		}
 		array_num[i].left = 0;
 		array_num[i].right = 0;
@@ -184,7 +178,7 @@ int create_avl_tree(FILE* input_file, int size, Node* array_num, Tree* tree) {
 		tree->root = use_rotate(tree->root);
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 
 }
 
