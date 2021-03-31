@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
+//#pragma warning(disable : 4996)
 
 
 typedef struct Node {
@@ -165,13 +166,18 @@ Node* put_node(Node* root, Node* node) {
 void create_avl_tree(FILE* input_file, FILE* output_file, int size, Node* array_num, Tree* tree) {
 	int num;
 
-	for (int i = 0; i < size; i++) {//раньше с 1 
+	for (int i = 0; i < size; i++) {
+		
 		if(fscanf(input_file, "%i", &num) == EOF) {
 			free(array_num);
 			fclose(input_file);
 			fclose(output_file);
 			exit(EXIT_FAILURE);
 		}
+		array_num[i].left = 0;
+		array_num[i].right = 0;
+		array_num[i].value = 0;
+		array_num[i].height = 0;
 		array_num[i].value = num;
 		tree->root = put_node(tree->root, &array_num[i]);
 		tree->root = use_rotate(tree->root);
@@ -192,7 +198,6 @@ int main() {
 		return EXIT_SUCCESS;
 	}
 
-
 	int size;
 	if (fscanf( input_file, "%i", &size ) == EOF) {
 		fclose(input_file);
@@ -204,7 +209,7 @@ int main() {
 		fputc('0', output_file);
 	}
 	else {
-		Node* array_num = (Node*)calloc(size, sizeof(Node));
+		Node* array_num = (Node*)malloc(size * sizeof(Node));
 		if (array_num == NULL) {
 			fclose(input_file);
 			fclose(output_file);
@@ -213,6 +218,8 @@ int main() {
 
 		Tree tree;
 		tree.root = 0;
+		tree.root->height = 0;
+		fprintf(output_file, "%i", tree.root->height);
 		create_avl_tree(input_file, output_file, size, array_num, &tree);
 
 		fprintf(output_file, "%i", tree.root->height);
