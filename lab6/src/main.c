@@ -72,9 +72,9 @@ Node* small_rotate_right(Node* root) {
 
 
 int check_balance(Node node) {
-	if (&node == NULL) {
-		return 0;
-	}
+	//if (node == NULL) {
+	//	return 0;
+	//}
 	if ( node.left == NULL && node.right == NULL) {
 		return 0;
 	}
@@ -91,7 +91,11 @@ int check_balance(Node node) {
 
 
 Node* use_rotate(Node* node) {
-	int balance = check_balance(*node);
+	int balance;
+	if (node != NULL) {
+		balance = check_balance(*node);
+	}
+
 
 	if (balance == 2) {
 		if (check_balance(*(node->right)) == -1) {
