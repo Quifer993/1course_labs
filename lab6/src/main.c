@@ -91,7 +91,7 @@ int check_balance(Node node) {
 
 
 Node* use_rotate(Node* node) {
-	int balance;
+	int balance = 0;
 	if (node != NULL) {
 		balance = check_balance(*node);
 	}
