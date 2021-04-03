@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -27,26 +29,18 @@ int maximum(int a, int b) {
 }
 
 
-int check_height(Node* Node) {
-	if (Node != NULL) {
-		return maximum(check_height(Node->left), check_height(Node->right)) + 1;
+int fix_height(Node node) {
+	if (node.right != NULL && node.left != NULL) {
+		return maximum(node.left->height, node.right->height) + 1;
 	}
-	return 0;
-}
-
-
-int fix_height(Node* node) {
-	if (node->right != NULL && node->left != NULL) {
-		return maximum(node->left->height, node->right->height) + 1;
-	}
-	else if (node->right == NULL && node->left == NULL) {
+	else if (node.right == NULL && node.left == NULL) {
 		return 1;
 	}
-	else if (node->left != NULL) {
-		return  node->left->height + 1;
+	else if (node.left != NULL) {
+		return  node.left->height + 1;
 	}
 	else {
-		return  node->right->height + 1;
+		return  node.right->height + 1;
 	}
 
 	
@@ -58,8 +52,8 @@ Node* small_rotate_left(Node* root) {
 	root->right = new_root->left;
 	new_root->left = root;
 
-	root->height = fix_height(root);
-	new_root->height = fix_height(new_root);
+	root->height = fix_height(*root);
+	new_root->height = fix_height(*new_root);
 	
 	return new_root;
 }
@@ -70,62 +64,49 @@ Node* small_rotate_right(Node* root) {
 	root->left = new_root->right;
 	new_root->right = root;
 
-	root->height = fix_height(root);
-	new_root->height = fix_height(new_root);
+	root->height = fix_height(*root);
+	new_root->height = fix_height(*new_root);
 
 	return new_root;
 }
 
 
-int check_balance(Node* node) {
-	if (node == NULL) {
+int check_balance(Node node) {
+	if (&node == NULL) {
 		return 0;
 	}
-	if ( node->left == NULL && node->right == NULL) {
+	if ( node.left == NULL && node.right == NULL) {
 		return 0;
 	}
-	if (node->left == NULL) {
-		return node->right->height;
+	if (node.left == NULL) {
+		return node.right->height;
 	}
-	else if (node->right == NULL) {
-		return -(node->left->height);
+	else if (node.right == NULL) {
+		return -(node.left->height);
 	}
 	else {
-		return node->right->height - node->left->height;
+		return node.right->height - node.left->height;
 	}
 }
 
 
 Node* use_rotate(Node* node) {
-	int balance = check_balance(node);
+	int balance = check_balance(*node);
 
 	if (balance == 2) {
-		if (check_balance(node->right) == -1) {
+		if (check_balance(*(node->right)) == -1) {
 			node->right = small_rotate_right(node->right);
 		}
 		node = small_rotate_left(node);
 	}
 	if (balance == -2) {
-		if (check_balance(node->left) == 1) {
+		if (check_balance(*(node->left)) == 1) {
 			node->left = small_rotate_left(node->left);
 		}
 		node = small_rotate_right(node);
 	}
 
 	return node;
-}
-
-
-void choose_max_height(Node* node) {
-	if (node->left == NULL) {
-		node->height = node->right->height + 1;
-	}
-	else if(node->right == NULL){
-		node->height = node->left->height + 1;
-	}
-	else {
-		node->height = maximum(node->left->height, node->right->height) + 1;
-	}
 }
 
 
@@ -142,7 +123,6 @@ Node* put_node(Node* root, Node* node) {
 		}
 		else { 
 			root->left = node;
-			root->left->height = 1;
 		}
 	}
 	else {
@@ -152,11 +132,10 @@ Node* put_node(Node* root, Node* node) {
 		}
 		else {
 			root->right = node;
-			root->right->height = 1;
 		}
 	}
 
-	choose_max_height(root);
+	root->height = fix_height(*root);
 	return root;
 }
 
@@ -169,10 +148,9 @@ int create_avl_tree(FILE* input_file, int size, Node* array_num, Tree* tree) {
 		if(fscanf(input_file, "%i", &num) == EOF) {
 			return EXIT_FAILURE;
 		}
-		array_num[i].left = 0;
-		array_num[i].right = 0;
-		array_num[i].value = 0;
-		array_num[i].height = 0;
+		array_num[i].left = NULL;
+		array_num[i].right = NULL;
+		array_num[i].height = 1;
 		array_num[i].value = num;
 		tree->root = put_node(tree->root, &array_num[i]);
 		tree->root = use_rotate(tree->root);
@@ -215,8 +193,8 @@ int main() {
 		}
 
 		Tree tree;
-		tree.root = 0;
-		if (create_avl_tree(input_file, size, array_num, &tree) == 0) {
+		tree.root = NULL;
+		if (create_avl_tree(input_file, size, array_num, &tree) == EXIT_SUCCESS) {
 			fprintf(output_file, "%i", tree.root->height);
 		}
 
