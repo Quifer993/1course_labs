@@ -2,7 +2,6 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#pragma warning(disable : 4996)
 
 
 typedef struct Tree {
@@ -25,19 +24,10 @@ void delete_tree(Tree* tree) {
 
 	if (tree->right != NULL)
 		delete_tree(tree->right);
-	free(tree);
-}
 
+	if (tree != NULL)
+		free(tree);
 
-void close_file(FILE* in, FILE* out, int error) {
-	fclose(in);
-	fclose(out);
-	if (error != 0) {
-		exit(EXIT_FAILURE);
-	}
-	else {
-		exit(EXIT_SUCCESS);
-	}
 }
 
 
@@ -74,14 +64,16 @@ unsigned char bits_to_bytes(const bool bits[], int num_bits, FILE* out) {
 }
 
 
-Tree* make_node(FILE* in, FILE* out, Tree** arr_node, Tree* left, Tree* right, int count, unsigned char byte, int size) {
+Tree* make_node(FILE* in, FILE* out, Tree** arr_node, Tree* left, Tree* right, int count, unsigned char byte, int size, bool* error) {
 	Tree* node = (Tree*)malloc(sizeof(Tree));
 	if (node == NULL) {
 		for (int i = size - 1; i >= 0; i-- ) {
 			delete_tree(arr_node[i]);
 		}
 		free(arr_node);
-		close_file(in, out , EXIT_FAILURE);
+		*error = true;
+		return NULL;
+		//close_file(in, out , EXIT_FAILURE);
 	}
 	node->left = left;
 	node->right = right;
@@ -91,10 +83,12 @@ Tree* make_node(FILE* in, FILE* out, Tree** arr_node, Tree* left, Tree* right, i
 }
 
 
-Tree* make_node_dec(FILE* in, FILE* out, Tree* left, Tree* right, int count, unsigned char byte) {
+Tree* make_node_dec(FILE* in, FILE* out, Tree* left, Tree* right, int count, unsigned char byte, bool* error) {
 	Tree* node = (Tree*)malloc(sizeof(Tree));
 	if (node == NULL) {
-		close_file(in, out , EXIT_FAILURE);
+		*error = true;
+		return NULL;
+		//close_file(in, out , EXIT_FAILURE);
 	}
 	node->left = left;
 	node->right = right;
@@ -120,15 +114,12 @@ int compare(const void* lphs, const void* rphs) {
 void make_alphabet(Tree* tree, int* high_now, Letter_code* arr_code, char* code_mem) {
 
 	if (tree->left != NULL) {
-		//arr_code[tree->byte].code[*high_now] = 1;
 		code_mem[*high_now] = 1;
 		*high_now += 1;
 		make_alphabet(tree->left, high_now, arr_code, code_mem);
 	}
 
 	if (tree->right != NULL) {
-		//unsigned char mask = 255 << (9 - *high_now);
-		//arr_code[tree->byte].code[*high_now] = 0;
 		code_mem[*high_now] = 0;
 		*high_now += 1;
 		make_alphabet(tree->right, high_now, arr_code, code_mem);
@@ -137,7 +128,7 @@ void make_alphabet(Tree* tree, int* high_now, Letter_code* arr_code, char* code_
 
 	if (tree->right == NULL && tree->left == NULL) {
 		arr_code[tree->byte].size = *high_now + 1;
-		//arr_code[tree->byte].code = code_mem;
+
 		for (int i = 0; i < arr_code[tree->byte].size; i++) {
 			arr_code[tree->byte].code[i] = code_mem[i];
 		}
@@ -187,7 +178,7 @@ void find_lists(Tree* tree, int* high_now, bool bits[], int* point ) {
 }
 
 
-void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned char last_sym_size, unsigned char last_sym) {
+void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned char last_sym_size, unsigned char last_sym, bool* error) {
 	unsigned char byte = last_sym;
 	int point = last_sym_size;
 	byte &= 255 << (8 - last_sym_size);
@@ -195,19 +186,24 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 	rewind(in);
 	char useless = 0;
 	unsigned char letter;
-	while (useless != '\n') {
+
+	char useless2[10];
+	fgets(useless2, 10, in);
+	/*while (useless != '\n') {
 		useless = fgetc(in);
-		if (feof(in) != 0) {
-			close_file(in, out, EXIT_FAILURE);
-		}
-	}
+		//if (feof(in) != 0) {
+		//	close_file(in, out, EXIT_FAILURE);
+		//}
+	}*/
 
 	unsigned char code = 0;
 
 	for (int i = 0; i < size; i++) {
 
 		if (fscanf(in, "%c", &letter) == EOF) {
-			close_file(in, out, EXIT_FAILURE);
+			*error = true;
+			return;
+			//close_file(in, out, EXIT_FAILURE);
 		}
 		for (int j = 0; j < arr_code[letter].size; j++) {
 			code = arr_code[letter].code[j];
@@ -233,14 +229,16 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 }
 
 
-int write_alphabet(FILE* in, FILE* out, Tree** arr_node, Tree* node, int size, unsigned char* last_sym) {
+int write_alphabet(FILE* in, FILE* out, Tree** arr_node, Tree* node, int size, unsigned char* last_sym, bool* error) {
 	int high_now = 1;
 	int size_tree = 2 * size - 1;
 
 	bool* bits = (bool*)malloc((size_tree + size * 8) * sizeof(bool));
 	if (bits == NULL) {
 		free(arr_node);
-		close_file(in, out, EXIT_FAILURE);
+		*error = true;
+		return;
+		//close_file(in, out, EXIT_FAILURE);
 	}
 
 	int point = 0;
@@ -268,7 +266,7 @@ void write_uint(unsigned int value, FILE* out) {
 }
 
 
-void coder(FILE* in, FILE* out) {
+void coder(FILE* in, FILE* out, bool* error) {
 	int array_count[256] = { 0 };
 	unsigned char symbol;
 	unsigned int size_text = 0;
@@ -278,7 +276,8 @@ void coder(FILE* in, FILE* out) {
 	}
 		
 	if (size_text == 0) {
-		close_file(in, out, EXIT_SUCCESS);
+		return;
+		//close_file(in, out, EXIT_SUCCESS);
 	}
 
 	int size = 0;
@@ -290,12 +289,18 @@ void coder(FILE* in, FILE* out) {
 
 	Tree** arr_node = (Tree**)calloc(size, sizeof(Tree*));
 	if (arr_node == NULL) {
-		close_file(in, out, EXIT_FAILURE);
+		*error = true;
+		return;
 	}
+
 	int j = 0;
 	for (int i = 0; i < 256; i++) {
 		if (array_count[i] != 0) {
-			arr_node[j] = make_node(in, out, arr_node,NULL, NULL, array_count[i], i, j);
+			arr_node[j] = make_node(in, out, arr_node, NULL, NULL, array_count[i], i, j, error);
+
+			if (*error)
+				return;
+
 			j++;
 		}
 	}
@@ -304,7 +309,11 @@ void coder(FILE* in, FILE* out) {
 	qsort(arr_node, size, sizeof(arr_node[0]), compare);
 
 	for (int j = size - 2; j >= 0; j--) {
-		arr_node[j] = make_node(in, out, arr_node, arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', size);
+		arr_node[j] = make_node(in, out, arr_node, arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', size, error);
+
+		if (*error)
+			return;
+
 		qsort(arr_node, j + 1, sizeof(arr_node[0]), compare);
 	}
 
@@ -317,7 +326,9 @@ void coder(FILE* in, FILE* out) {
 				free(arr_code[j].code);
 			}
 			free(arr_node);
-			close_file(in, out, EXIT_FAILURE);
+			*error = true;
+			return;
+			//close_file(in, out, EXIT_FAILURE);
 		}
 	}
 	char code[256];
@@ -326,20 +337,22 @@ void coder(FILE* in, FILE* out) {
 	write_uint(size_text, out);
 
 	unsigned char last_sym;
-	unsigned char last_symbol_size = write_alphabet(in, out, arr_node, arr_node[0], size, &last_sym);
+	unsigned char last_symbol_size = write_alphabet(in, out, arr_node, arr_node[0], size, &last_sym, error);
 
 	
 	delete_tree(arr_node[0]);
-	write_text(arr_code, in, out, size_text, last_symbol_size, last_sym);
+	write_text(arr_code, in, out, size_text, last_symbol_size, last_sym, error);
 }
 
 
 //decoder fun
-void read_uint(FILE* in, FILE* out, unsigned int* result) {
+void read_uint(FILE* in, FILE* out, unsigned int* result, bool* error) {
 	unsigned char letter = 0;
 	for (int i = 0; i < 4; i++) {
 		if (fscanf(in, "%c", &letter) == EOF) {
-			close_file(in, out, EXIT_FAILURE);
+			*error = true;
+			return;
+			//close_file(in, out, EXIT_FAILURE);
 		}
 
 		*result |= (letter) << 8 * (3 - i);
@@ -348,62 +361,75 @@ void read_uint(FILE* in, FILE* out, unsigned int* result) {
 }
 
 
-void create_tree(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root) {
-		if (*point == 8) {
-			if (fscanf(in, "%c", last_byte) == EOF) {
-				delete_tree(root);
-				close_file(in, out, EXIT_FAILURE);
-			}
-			//printf("%i\n", *last_byte);
-			*point = 0;
-		}//сделать функцию считывания символа
-		
-		unsigned char code_bit = 0;
-		code_bit = *last_byte << *point;
-		code_bit = code_bit >> 7;
+void create_tree(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root, bool* error) {
+	if (*error) {
+		return;
+	}
 
-		(*point)++;
-		if (code_bit == 0) {
-			node->left = make_node_dec(in, out, NULL, NULL, 0, '0');
-			create_tree(in, out, last_byte, point, node->left, root);
-			node->right = make_node_dec(in, out, NULL, NULL, 0, '0');
-			create_tree(in, out, last_byte, point, node->right, root);
-		}
-		else {
-			unsigned char byte = 0;
-			for (int i = 0; i < 8; i++) {
-				if (*point == 8) {
-					if (fscanf(in, "%c", last_byte) == EOF) {
-						delete_tree(root);
-						close_file(in, out, EXIT_FAILURE);
-					}
-					//printf("%i\n", *last_byte);
-					*point = 0;
-				}
-				code_bit = *last_byte << *point;
-				code_bit = code_bit >> 7;
-				
-				byte <<= 1;
-				byte |= code_bit;
-
-				(*point)++;
-
-			}
-			node->byte = byte;
-		}
-}
-
-
-void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root, unsigned int* size_text) {
 	if (*point == 8) {
 		if (fscanf(in, "%c", last_byte) == EOF) {
 			delete_tree(root);
-			close_file(in, out, EXIT_FAILURE);
+			*error = true;
+			return;
+			//close_file(in, out, EXIT_FAILURE);
 		}
+		//printf("%i\n", *last_byte);
 		*point = 0;
 	}//сделать функцию считывания символа
 
+	unsigned char code_bit = 0;
+	code_bit = *last_byte << *point;
+	code_bit = code_bit >> 7;
 
+	(*point)++;
+	if (code_bit == 0) {
+		node->left = make_node_dec(in, out, NULL, NULL, 0, '0', error);
+		create_tree(in, out, last_byte, point, node->left, root, error);
+		node->right = make_node_dec(in, out, NULL, NULL, 0, '0', error);
+		create_tree(in, out, last_byte, point, node->right, root, error);
+	}
+	else {
+		unsigned char byte = 0;
+		for (int i = 0; i < 8; i++) {
+			if (*point == 8) {
+				if (fscanf(in, "%c", last_byte) == EOF) {
+					delete_tree(root);
+					*error = true;
+					return;
+					//close_file(in, out, EXIT_FAILURE);
+				}
+				//printf("%i\n", *last_byte);
+				*point = 0;
+			}
+			code_bit = *last_byte << *point;
+			code_bit = code_bit >> 7;
+
+			byte <<= 1;
+			byte |= code_bit;
+
+			(*point)++;
+
+		}
+		node->byte = byte;
+	}
+
+}
+
+
+void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root, unsigned int* size_text, bool* error) {
+	if (*error) {
+		return;
+	}
+
+	if (*point == 8) {
+		if (fscanf(in, "%c", last_byte) == EOF) {
+			delete_tree(root);
+			*error = true;
+			return;
+			//close_file(in, out, EXIT_FAILURE);
+		}
+		*point = 0;
+	}//сделать функцию считывания символа
 
 	if (node->right == NULL && node->left == NULL) {
 		fprintf(out, "%c", node->byte);
@@ -420,29 +446,31 @@ void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* 
 
 		(*point)++;
 		if (code_bit == 1) {
-			read_text_dec(in, out, last_byte, point, node->left, root, size_text);
+			read_text_dec(in, out, last_byte, point, node->left, root, size_text, error);
 		}
 		else
 		if (code_bit == 0) {
-			read_text_dec(in, out, last_byte, point, node->right, root, size_text);
+			read_text_dec(in, out, last_byte, point, node->right, root, size_text, error);
 		}
 	}
-
-
 }
 
 
-void decoder(FILE* in, FILE* out) {
+void decoder(FILE* in, FILE* out, bool* error) {
 	unsigned int size_text = 0;
-	read_uint(in, out, &size_text);
-
+	read_uint(in, out, &size_text, error);
 	unsigned char last_byte = 0;
 	unsigned int point = 8;
-	Tree *root = make_node_dec(in, out, NULL, NULL, 0, '0');
+	Tree *root = make_node_dec(in, out, NULL, NULL, 0, '0', error);
+
+	if (*error) {
+		return;
+	}
 	//node = make_node(NULL, NULL, 0, '0'); //(Tree*)malloc(sizeof(Tree));     //Tree* branch = (Tree*)malloc(sizeof(Tree));
-	create_tree(in, out, &last_byte, &point, root, root);
-	while (size_text > 0) {
-		read_text_dec(in, out, &last_byte, &point, root, root, &size_text);
+	create_tree(in, out, &last_byte, &point, root, root, error);
+
+	while (error && size_text > 0) {
+		read_text_dec(in, out, &last_byte, &point, root, root, &size_text, error);
 	}
 
 	delete_tree(root);
@@ -452,6 +480,8 @@ void decoder(FILE* in, FILE* out) {
 int main() {
 	FILE* file_input;
 	FILE* file_output;
+	bool error = 0;
+
 
 	if ((file_input = fopen("in.txt", "rb+")) == NULL){
 		return 0;
@@ -464,22 +494,23 @@ int main() {
 
 	unsigned char mode_of_work;
 	if (fscanf(file_input, "%c", &mode_of_work) == EOF) {
-		close_file(file_input, file_output, EXIT_FAILURE);
-		return 0;
+		//close_file(file_input, file_output, EXIT_FAILURE);
+		//return 0;
+		error = 1;
 	}
 
 	char useless2[10];
-	if (fgets(useless2, 10, file_input) == NULL) {
-		close_file(file_input, file_output, EXIT_FAILURE);
+	if (error || fgets(useless2, 10, file_input) != NULL) {
+		if (mode_of_work == 'c') {
+			coder(file_input, file_output, &error);
+		}
+		else if (mode_of_work == 'd') {
+			decoder(file_input, file_output, &error);
+		}//////////////////пустые файлы обработать
 	}
-	
-	if (mode_of_work == 'c') {
-		coder(file_input, file_output);
-	}
-	else if (mode_of_work == 'd') {
-		decoder(file_input, file_output);
-	}//////////////////пустые файлы обработать
 
-	close_file(file_input, file_output, EXIT_SUCCESS);
+	fclose(file_input);
+	fclose(file_output);
+	//close_file(file_input, file_output, EXIT_SUCCESS);
 	return 0;
 }
