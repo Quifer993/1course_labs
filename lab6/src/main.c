@@ -29,18 +29,18 @@ int maximum(int a, int b) {
 }
 
 
-int fix_height(Node node) {
-	if (node.right != NULL && node.left != NULL) {
-		return maximum(node.left->height, node.right->height) + 1;
+int fix_height(const Node* node) {
+	if (node->right != NULL && node->left != NULL) {
+		return maximum(node->left->height, node->right->height) + 1;
 	}
-	else if (node.right == NULL && node.left == NULL) {
+	else if (node->right == NULL && node->left == NULL) {
 		return 1;
 	}
-	else if (node.left != NULL) {
-		return  node.left->height + 1;
+	else if (node->left != NULL) {
+		return  node->left->height + 1;
 	}
 	else {
-		return  node.right->height + 1;
+		return  node->right->height + 1;
 	}
 
 	
@@ -52,8 +52,8 @@ Node* small_rotate_left(Node* root) {
 	root->right = new_root->left;
 	new_root->left = root;
 
-	root->height = fix_height(*root);
-	new_root->height = fix_height(*new_root);
+	root->height = fix_height(root);
+	new_root->height = fix_height(new_root);
 	
 	return new_root;
 }
@@ -64,28 +64,28 @@ Node* small_rotate_right(Node* root) {
 	root->left = new_root->right;
 	new_root->right = root;
 
-	root->height = fix_height(*root);
-	new_root->height = fix_height(*new_root);
+	root->height = fix_height(root);
+	new_root->height = fix_height(new_root);
 
 	return new_root;
 }
 
 
-int check_balance(Node node) {
+int check_balance(const Node* node) {
 	//if (node == NULL) {
 	//	return 0;
 	//}
-	if ( node.left == NULL && node.right == NULL) {
+	if ( node->left == NULL && node->right == NULL) {
 		return 0;
 	}
-	if (node.left == NULL) {
-		return node.right->height;
+	if (node->left == NULL) {
+		return node->right->height;
 	}
-	else if (node.right == NULL) {
-		return -(node.left->height);
+	else if (node->right == NULL) {
+		return -(node->left->height);
 	}
 	else {
-		return node.right->height - node.left->height;
+		return node->right->height - node->left->height;
 	}
 }
 
@@ -93,18 +93,18 @@ int check_balance(Node node) {
 Node* use_rotate(Node* node) {
 	int balance = 0;
 	if (node != NULL) {
-		balance = check_balance(*node);
+		balance = check_balance(node);
 	}
 
 
 	if (balance == 2) {
-		if (check_balance(*(node->right)) == -1) {
+		if (check_balance(node->right) == -1) {
 			node->right = small_rotate_right(node->right);
 		}
 		node = small_rotate_left(node);
 	}
 	if (balance == -2) {
-		if (check_balance(*(node->left)) == 1) {
+		if (check_balance(node->left) == 1) {
 			node->left = small_rotate_left(node->left);
 		}
 		node = small_rotate_right(node);
@@ -139,7 +139,7 @@ Node* put_node(Node* root, Node* node) {
 		}
 	}
 
-	root->height = fix_height(*root);
+	root->height = fix_height(root);
 	return root;
 }
 
