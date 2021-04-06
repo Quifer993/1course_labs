@@ -64,7 +64,7 @@ unsigned char bits_to_bytes(const bool bits[], int num_bits, FILE* out) {
 }
 
 
-Tree* make_node(FILE* in, FILE* out, Tree** arr_node, Tree* left, Tree* right, int count, unsigned char byte, int size, bool* error) {
+Tree* make_node(Tree** arr_node, Tree* left, Tree* right, int count, unsigned char byte, int size, bool* error) {
 	Tree* node = (Tree*)malloc(sizeof(Tree));
 	if (node == NULL) {
 		for (int i = size - 1; i >= 0; i-- ) {
@@ -83,7 +83,7 @@ Tree* make_node(FILE* in, FILE* out, Tree** arr_node, Tree* left, Tree* right, i
 }
 
 
-Tree* make_node_dec(FILE* in, FILE* out, Tree* left, Tree* right, int count, unsigned char byte, bool* error) {
+Tree* make_node_dec(Tree* left, Tree* right, int count, unsigned char byte, bool* error) {
 	Tree* node = (Tree*)malloc(sizeof(Tree));
 	if (node == NULL) {
 		*error = true;
@@ -229,7 +229,7 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 }
 
 
-int write_alphabet(FILE* in, FILE* out, Tree** arr_node, Tree* node, int size, unsigned char* last_sym, bool* error) {
+int write_alphabet(FILE* out, Tree** arr_node, Tree* node, int size, unsigned char* last_sym, bool* error) {
 	int high_now = 1;
 	int size_tree = 2 * size - 1;
 
@@ -296,7 +296,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	int j = 0;
 	for (int i = 0; i < 256; i++) {
 		if (array_count[i] != 0) {
-			arr_node[j] = make_node(in, out, arr_node, NULL, NULL, array_count[i], i, j, error);
+			arr_node[j] = make_node(arr_node, NULL, NULL, array_count[i], i, j, error);
 
 			if (*error)
 				return;
@@ -309,7 +309,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	qsort(arr_node, size, sizeof(arr_node[0]), compare);
 
 	for (int j = size - 2; j >= 0; j--) {
-		arr_node[j] = make_node(in, out, arr_node, arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', size, error);
+		arr_node[j] = make_node(arr_node, arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', size, error);
 
 		if (*error)
 			return;
@@ -337,7 +337,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	write_uint(size_text, out);
 
 	unsigned char last_sym;
-	unsigned char last_symbol_size = write_alphabet(in, out, arr_node, arr_node[0], size, &last_sym, error);
+	unsigned char last_symbol_size = write_alphabet(out, arr_node, arr_node[0], size, &last_sym, error);
 
 	
 	delete_tree(arr_node[0]);
@@ -346,7 +346,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 
 
 //decoder fun
-void read_uint(FILE* in, FILE* out, unsigned int* result, bool* error) {
+void read_uint(FILE* in, unsigned int* result, bool* error) {
 	unsigned char letter = 0;
 	for (int i = 0; i < 4; i++) {
 		if (fscanf(in, "%c", &letter) == EOF) {
@@ -361,7 +361,7 @@ void read_uint(FILE* in, FILE* out, unsigned int* result, bool* error) {
 }
 
 
-void create_tree(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root, bool* error) {
+void create_tree(FILE* in, unsigned char* last_byte, unsigned int* point, Tree* node, Tree* root, bool* error) {
 	if (*error) {
 		return;
 	}
@@ -383,10 +383,10 @@ void create_tree(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* po
 
 	(*point)++;
 	if (code_bit == 0) {
-		node->left = make_node_dec(in, out, NULL, NULL, 0, '0', error);
-		create_tree(in, out, last_byte, point, node->left, root, error);
-		node->right = make_node_dec(in, out, NULL, NULL, 0, '0', error);
-		create_tree(in, out, last_byte, point, node->right, root, error);
+		node->left = make_node_dec(NULL, NULL, 0, '0', error);
+		create_tree(in, last_byte, point, node->left, root, error);
+		node->right = make_node_dec(NULL, NULL, 0, '0', error);
+		create_tree(in, last_byte, point, node->right, root, error);
 	}
 	else {
 		unsigned char byte = 0;
@@ -458,16 +458,16 @@ void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* 
 
 void decoder(FILE* in, FILE* out, bool* error) {
 	unsigned int size_text = 0;
-	read_uint(in, out, &size_text, error);
+	read_uint(in, &size_text, error);
 	unsigned char last_byte = 0;
 	unsigned int point = 8;
-	Tree *root = make_node_dec(in, out, NULL, NULL, 0, '0', error);
+	Tree *root = make_node_dec(NULL, NULL, 0, '0', error);
 
 	if (*error) {
 		return;
 	}
 	//node = make_node(NULL, NULL, 0, '0'); //(Tree*)malloc(sizeof(Tree));     //Tree* branch = (Tree*)malloc(sizeof(Tree));
-	create_tree(in, out, &last_byte, &point, root, root, error);
+	create_tree(in, &last_byte, &point, root, root, error);
 
 	while (error && size_text > 0) {
 		read_text_dec(in, out, &last_byte, &point, root, root, &size_text, error);
