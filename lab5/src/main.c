@@ -99,8 +99,8 @@ Tree* make_node_dec(FILE* in, FILE* out, Tree* left, Tree* right, int count, uns
 
 
 int compare(const void* lphs, const void* rphs) {
-	int lhs = (*(Tree**)lphs)->count;
-	int rhs = (*(Tree**)rphs)->count;
+	int lhs = (*(Tree* const*)lphs)->count;
+	int rhs = (*(Tree* const*)rphs)->count;
 
 	if (lhs < rhs)
 		return 1;
