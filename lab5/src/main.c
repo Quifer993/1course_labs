@@ -184,17 +184,13 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 	byte &= 255 << (8 - last_sym_size);
 
 	rewind(in);
-	char useless = 0;
 	unsigned char letter;
 
 	char useless2[10];
-	fgets(useless2, 10, in);
-	/*while (useless != '\n') {
-		useless = fgetc(in);
-		//if (feof(in) != 0) {
-		//	close_file(in, out, EXIT_FAILURE);
-		//}
-	}*/
+	if (fgets(useless2, 10, in)) {
+		*error = true;
+		return;
+	}
 
 	unsigned char code = 0;
 
@@ -203,7 +199,7 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 		if (fscanf(in, "%c", &letter) == EOF) {
 			*error = true;
 			return;
-			//close_file(in, out, EXIT_FAILURE);
+			
 		}
 		for (int j = 0; j < arr_code[letter].size; j++) {
 			code = arr_code[letter].code[j];
@@ -237,8 +233,8 @@ int write_alphabet(FILE* out, Tree** arr_node, Tree* node, int size, unsigned ch
 	if (bits == NULL) {
 		free(arr_node);
 		*error = true;
-		return;
-		//close_file(in, out, EXIT_FAILURE);
+		return EXIT_FAILURE;
+		
 	}
 
 	int point = 0;
@@ -320,7 +316,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	int high_now = 0;
 	Letter_code arr_code[256];
 	for (int i = 0; i < 256; i++) {
-		arr_code[i].code = (char*)malloc(255 * sizeof(char));
+		arr_code[i].code = (unsigned char*)malloc(255 * sizeof(unsigned char));
 		if (arr_code[i].code == NULL) {
 			for (int j = 0; j < i; j++) {
 				free(arr_code[j].code);
@@ -328,7 +324,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 			free(arr_node);
 			*error = true;
 			return;
-			//close_file(in, out, EXIT_FAILURE);
+			
 		}
 	}
 	char code[256];
@@ -339,7 +335,9 @@ void coder(FILE* in, FILE* out, bool* error) {
 	unsigned char last_sym;
 	unsigned char last_symbol_size = write_alphabet(out, arr_node, arr_node[0], size, &last_sym, error);
 
-	
+	if (*error)
+		return;
+
 	delete_tree(arr_node[0]);
 	write_text(arr_code, in, out, size_text, last_symbol_size, last_sym, error);
 }
@@ -352,7 +350,7 @@ void read_uint(FILE* in, unsigned int* result, bool* error) {
 		if (fscanf(in, "%c", &letter) == EOF) {
 			*error = true;
 			return;
-			//close_file(in, out, EXIT_FAILURE);
+			
 		}
 
 		*result |= (letter) << 8 * (3 - i);
@@ -371,7 +369,7 @@ void create_tree(FILE* in, unsigned char* last_byte, unsigned int* point, Tree* 
 			delete_tree(root);
 			*error = true;
 			return;
-			//close_file(in, out, EXIT_FAILURE);
+			
 		}
 		//printf("%i\n", *last_byte);
 		*point = 0;
@@ -396,7 +394,7 @@ void create_tree(FILE* in, unsigned char* last_byte, unsigned int* point, Tree* 
 					delete_tree(root);
 					*error = true;
 					return;
-					//close_file(in, out, EXIT_FAILURE);
+					
 				}
 				//printf("%i\n", *last_byte);
 				*point = 0;
@@ -426,7 +424,7 @@ void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* 
 			delete_tree(root);
 			*error = true;
 			return;
-			//close_file(in, out, EXIT_FAILURE);
+			
 		}
 		*point = 0;
 	}//сделать функцию считывания символа
