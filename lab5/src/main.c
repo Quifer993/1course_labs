@@ -270,10 +270,8 @@ void coder(FILE* in, FILE* out, bool* error) {
 		size_text++;
 	}
 		
-	if (size_text == 0) {
+	if (size_text == 0)
 		return;
-		//close_file(in, out, EXIT_SUCCESS);
-	}
 
 	int size = 0;
 	for (int i = 0; i < 256; i++) {
@@ -498,7 +496,7 @@ int main() {
 	}
 
 	char useless2[10];
-	if (error || fgets(useless2, 10, file_input) != NULL) {
+	if (!error && fgets(useless2, 10, file_input) != NULL) {
 		if (mode_of_work == 'c') {
 			coder(file_input, file_output, &error);
 		}
