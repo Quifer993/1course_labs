@@ -332,7 +332,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	write_uint(size_text, out);
 
 	unsigned char last_sym;
-	unsigned char last_symbol_size = write_alphabet(out, arr_node, arr_node[0], size, &last_sym, error);
+	unsigned char last_symbol_size = write_alphabet(out, arr_node[0], size, &last_sym, error);
 
 	delete_tree(arr_node[0]);
 	if (*error)
