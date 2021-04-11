@@ -13,7 +13,7 @@ typedef struct Tree {
 
 
 typedef struct Letter_code {
-	unsigned char* code;
+	unsigned char code[256];
 	int size;
 }Letter_code;
 
@@ -312,7 +312,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 
 	int high_now = 0;
 	Letter_code arr_code[256];
-	for (int i = 0; i < 256; i++) {
+	/*for (int i = 0; i < 256; i++) {
 		arr_code[i].code = (unsigned char*)malloc(255 * sizeof(unsigned char));
 		if (arr_code[i].code == NULL) {
 			for (int j = 0; j < i; j++) {
@@ -323,7 +323,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 			return;
 			
 		}
-	}
+	}*/
 	char code[256];
 	make_alphabet(arr_node[0], &high_now, arr_code, code);
 
