@@ -25,8 +25,11 @@ void delete_tree(Tree* tree) {
 	if (tree->right != NULL)
 		delete_tree(tree->right);
 
-	if (tree != NULL)
+	if (tree != NULL) {
 		free(tree);
+		tree = NULL;
+	}
+		
 
 }
 
@@ -334,6 +337,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 
 	delete_tree(arr_node[0]);
 	free(arr_node);
+
 	if (*error)
 		return;
 
