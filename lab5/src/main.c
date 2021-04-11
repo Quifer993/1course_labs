@@ -234,7 +234,7 @@ int write_alphabet(FILE* out, Tree* node, int size, unsigned char* last_sym, boo
 	bool* bits = (bool*)malloc((size_tree + size * 8) * sizeof(bool));
 	if (bits == NULL) {
 		*error = true;
-		return EXIT_FAILURE;
+		return 1;
 		
 	}
 
@@ -314,18 +314,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 
 	int high_now = 0;
 	Letter_code arr_code[256];
-	/*for (int i = 0; i < 256; i++) {
-		arr_code[i].code = (unsigned char*)malloc(255 * sizeof(unsigned char));
-		if (arr_code[i].code == NULL) {
-			for (int j = 0; j < i; j++) {
-				free(arr_code[j].code);
-			}
-			free(arr_node);
-			*error = true;
-			return;
-			
-		}
-	}*/
+
 	char code[256];
 	make_alphabet(arr_node[0], &high_now, arr_code, code);
 
@@ -491,8 +480,6 @@ int main() {
 
 	unsigned char mode_of_work;
 	if (fscanf(file_input, "%c", &mode_of_work) == EOF) {
-		//close_file(file_input, file_output, EXIT_FAILURE);
-		//return 0;
 		error = 1;
 	}
 
@@ -503,14 +490,11 @@ int main() {
 		}
 		else if (mode_of_work == 'd') {
 			decoder(file_input, file_output, &error);
-		}//////////////////пустые файлы обработать
+		}
 	}
 
 	fclose(file_input);
 	fclose(file_output);
-	//close_file(file_input, file_output, EXIT_SUCCESS);
-	/*if (error == 1) {
-		return 1;
-	}*/
+
 	return 0;
 }
