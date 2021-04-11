@@ -27,7 +27,6 @@ void delete_tree(Tree* tree) {
 
 	if (tree != NULL) {
 		free(tree);
-		tree = NULL;
 	}
 		
 
@@ -464,13 +463,10 @@ void decoder(FILE* in, FILE* out, bool* error) {
 	unsigned int point = 8;
 	Tree *root = make_node_dec(NULL, NULL, 0, '0', error);
 
-	if (*error) {
-		return;
-	}
 	//node = make_node(NULL, NULL, 0, '0'); //(Tree*)malloc(sizeof(Tree));     //Tree* branch = (Tree*)malloc(sizeof(Tree));
 	create_tree(in, &last_byte, &point, root, root, error);
 
-	while (*error && (size_text > 0) ) {
+	while (!(*error) && (size_text > 0) ) {
 		read_text_dec(in, out, &last_byte, &point, root, root, &size_text, error);
 	}
 
