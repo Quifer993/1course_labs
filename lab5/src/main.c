@@ -225,7 +225,7 @@ void write_text(Letter_code arr_code[], FILE* in , FILE* out, int size, unsigned
 }
 
 
-int write_alphabet(FILE* out, Tree** arr_node, Tree* node, int size, unsigned char* last_sym, bool* error) {
+int write_alphabet(FILE* out, Tree* node, int size, unsigned char* last_sym, bool* error) {
 	int high_now = 1;
 	int size_tree = 2 * size - 1;
 
