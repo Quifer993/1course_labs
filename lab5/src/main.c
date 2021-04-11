@@ -255,7 +255,7 @@ int write_alphabet(FILE* out, Tree* node, int size, unsigned char* last_sym, boo
 
 
 void write_uint(unsigned int value, FILE* out) {
-	unsigned int letter = 255 << 24; // 1111_1111_ and 24 '0'
+	unsigned int letter = 255U << 24; // 1111_1111_ and 24 '0'
 
 	for (int i = 0; i < 4; i++) {
 		fprintf(out, "%c", (value & letter) >> 8 * (3 - i));
