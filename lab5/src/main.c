@@ -467,7 +467,7 @@ void decoder(FILE* in, FILE* out, bool* error) {
 	//node = make_node(NULL, NULL, 0, '0'); //(Tree*)malloc(sizeof(Tree));     //Tree* branch = (Tree*)malloc(sizeof(Tree));
 	create_tree(in, &last_byte, &point, root, root, error);
 
-	while (error && size_text > 0) {
+	while (error && (size_text > 0) ) {
 		read_text_dec(in, out, &last_byte, &point, root, root, &size_text, error);
 	}
 
