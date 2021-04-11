@@ -513,8 +513,8 @@ int main() {
 	fclose(file_input);
 	fclose(file_output);
 	//close_file(file_input, file_output, EXIT_SUCCESS);
-	if (error == 1) {
+	/*if (error == 1) {
 		return 1;
-	}
+	}*/
 	return 0;
 }
