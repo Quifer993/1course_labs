@@ -333,6 +333,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	unsigned char last_symbol_size = write_alphabet(out, arr_node[0], size, &last_sym, error);
 
 	delete_tree(arr_node[0]);
+	free(arr_node);
 	if (*error)
 		return;
 
