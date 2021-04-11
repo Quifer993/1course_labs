@@ -231,7 +231,6 @@ int write_alphabet(FILE* out, Tree** arr_node, Tree* node, int size, unsigned ch
 
 	bool* bits = (bool*)malloc((size_tree + size * 8) * sizeof(bool));
 	if (bits == NULL) {
-		free(arr_node);
 		*error = true;
 		return EXIT_FAILURE;
 		
@@ -335,10 +334,11 @@ void coder(FILE* in, FILE* out, bool* error) {
 	unsigned char last_sym;
 	unsigned char last_symbol_size = write_alphabet(out, arr_node, arr_node[0], size, &last_sym, error);
 
+	delete_tree(arr_node[0]);
 	if (*error)
 		return;
 
-	delete_tree(arr_node[0]);
+
 	write_text(arr_code, in, out, size_text, last_symbol_size, last_sym, error);
 }
 
