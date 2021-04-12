@@ -4,11 +4,15 @@
 #include <stdlib.h>
 
 
+enum PartsOfTree{LEAF, BRANCH};
+
+
 typedef struct Tree {
 	int count;
 	unsigned char byte;
 	struct Tree* left;
 	struct Tree* right;
+	int type;
 }Tree;
 
 
@@ -25,7 +29,7 @@ void delete_tree(Tree* tree) {
 	if (tree->right != NULL)
 		delete_tree(tree->right);
 
-	if (tree != NULL) {
+	if (tree != NULL && (tree->type == BRANCH) ) {
 		free(tree);
 	}
 }
@@ -64,7 +68,7 @@ void clear_mem(Tree** nodes, int size) {
 }
 
 
-Tree* make_node(Tree* left, Tree* right, int count, unsigned char byte, bool* error) {
+Tree* make_node(Tree* left, Tree* right, int type, int count, unsigned char byte, bool* error) {
 	Tree* node = (Tree*)malloc(sizeof(Tree));
 	if (node == NULL) {
 		*error = true;
@@ -74,6 +78,7 @@ Tree* make_node(Tree* left, Tree* right, int count, unsigned char byte, bool* er
 	node->right = right;
 	node->count = count;
 	node->byte = byte;
+	node->type = type;
 	return node;
 }
 
@@ -225,7 +230,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	int j = 0;
 	for (int i = 0; i < 256; i++) {
 		if (array_count[i] != 0) {
-			arr_node[j] = make_node(NULL, NULL, array_count[i], i, error);
+			arr_node[j] = make_node(NULL, NULL, LEAF, array_count[i], i, error);
 
 			if (*error) {
 				clear_mem(arr_node, j);
@@ -237,7 +242,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 
 	qsort(arr_node, size, sizeof(arr_node[0]), compare);
 	for (int j = size - 2; j >= 0; j--) {
-		arr_node[j] = make_node(arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', error);
+		arr_node[j] = make_node(arr_node[j], arr_node[j + 1], BRANCH, arr_node[j]->count + arr_node[j + 1]->count, 'x', error);
 
 		if (*error) {
 			clear_mem(arr_node, size);
@@ -299,12 +304,13 @@ void create_tree(FILE* in, unsigned char* last_byte, unsigned int* byte_pos, Tre
 
 	(*byte_pos)++;
 	if (code_bit == 0) {
-		node->left = make_node(NULL, NULL, 0, '0', error);
+		node->left = make_node(NULL, NULL, BRANCH, 0, '0', error);
 		create_tree(in, last_byte, byte_pos, node->left, root, error);
-		node->right = make_node(NULL, NULL, 0, '0', error);
+		node->right = make_node(NULL, NULL, BRANCH, 0, '0', error);
 		create_tree(in, last_byte, byte_pos, node->right, root, error);
 	}
 	else {
+		node->type = LEAF;
 		unsigned char byte = 0;
 		for (int i = 0; i < 8; i++) {
 			if (*byte_pos == 8) {
@@ -371,7 +377,7 @@ void decoder(FILE* in, FILE* out, bool* error) {
 	read_uint(in, &size_text, error);
 	unsigned char last_byte = 0;
 	unsigned int byte_pos = 8;
-	Tree *root = make_node(NULL, NULL, 0, '0', error);
+	Tree *root = make_node(NULL, NULL, BRANCH, 0, '0', error);
 
 	create_tree(in, &last_byte, &byte_pos, root, root, error);
 
