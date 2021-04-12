@@ -137,7 +137,7 @@ void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsign
 
 	char end_of_first_line[10];
 	if (fgets(end_of_first_line, 10, in) == NULL) {
-		error = true;
+		*error = true;
 		return;
 	}
 
@@ -226,10 +226,10 @@ void coder(FILE* in, FILE* out, bool* error) {
 		if (array_count[i] != 0) {
 			arr_node[j] = make_node(NULL, NULL, array_count[i], i, error);
 
-			if (*error)
+			if (*error) {
 				clear_mem(arr_node, j);
 				return;
-
+			}
 			j++;
 		}
 	}
@@ -238,10 +238,10 @@ void coder(FILE* in, FILE* out, bool* error) {
 	for (int j = size - 2; j >= 0; j--) {
 		arr_node[j] = make_node(arr_node[j], arr_node[j + 1], arr_node[j]->count + arr_node[j + 1]->count, 'x', error);
 
-		if (*error)
+		if (*error) {
 			clear_mem(arr_node, size);
 			return;
-
+		}
 		qsort(arr_node, j + 1, sizeof(arr_node[0]), compare);
 	}
 
@@ -267,7 +267,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 //decoder fun
 void read_uint(FILE* in, unsigned int* result, bool* error) {
 	unsigned char letter = 0;
-	for (int i = 0; i < sizeof(*result); i++) {
+	for (int i = 0; i < sizeof(unsigned int); i++) {
 		if (fscanf(in, "%c", &letter) == EOF) {
 			*error = true;
 			return;
