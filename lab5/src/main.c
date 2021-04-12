@@ -267,7 +267,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 //decoder fun
 void read_uint(FILE* in, unsigned int* result, bool* error) {
 	unsigned char letter = 0;
-	for (int i = 0; i < sizeof(*result); i++) {
+	for (unsigned int i = 0; i < sizeof(*result); i++) {
 		if (fscanf(in, "%c", &letter) == EOF) {
 			*error = true;
 			return;
