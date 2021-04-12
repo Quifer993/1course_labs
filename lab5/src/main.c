@@ -189,7 +189,7 @@ int write_alphabet(FILE* out, const Tree* const tree, int size, unsigned char* l
 void write_uint(unsigned int value, FILE* out) {
 	unsigned int letter = 255U << 24; // 1111_1111_ and 24 '0'
 
-	for (int i = 0; i < sizeof(value); i++) {
+	for (unsigned int i = 0; i < sizeof(value); i++) {
 		fputc((value & letter) >> 8 * (3 - i), out);
 		letter >>= 8;
 	}
@@ -267,7 +267,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 //decoder fun
 void read_uint(FILE* in, unsigned int* result, bool* error) {
 	unsigned char letter = 0;
-	for (int i = 0; i < sizeof(unsigned int); i++) {
+	for (int i = 0; i < sizeof(*result); i++) {
 		if (fscanf(in, "%c", &letter) == EOF) {
 			*error = true;
 			return;
