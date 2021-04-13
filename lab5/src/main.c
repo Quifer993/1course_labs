@@ -16,8 +16,8 @@ typedef struct Tree {
 }Tree;
 
 
-typedef struct Letter_code {
-	unsigned char code[256];
+typedef struct LetterÑode {
+	bool code[256];
 	int size;
 }LetterCode;
 
@@ -29,9 +29,8 @@ void delete_tree(Tree* tree) {
 	if (tree->right != NULL)
 		delete_tree(tree->right);
 
-	if (tree != NULL && (tree->type == BRANCH) ) {
+	if (tree != NULL && (tree->type == BRANCH) )
 		free(tree);
-	}
 }
 
 
@@ -88,7 +87,7 @@ int compare(const void* lphs, const void* rphs) {
 }
 
 
-void make_alphabet(const Tree* const tree, LetterCode* codes, int height_now, char* code_mem) {
+void make_alphabet(const Tree* const tree, LetterCode* codes, int height_now, bool* code_mem) {
 	if (tree->left != NULL) {
 		code_mem[height_now] = 1;
 		make_alphabet(tree->left, codes, height_now + 1, code_mem);
@@ -252,7 +251,7 @@ void coder(FILE* in, FILE* out, bool* error) {
 	}
 
 	LetterCode arr_code[256];
-	char code[256];
+	bool code[256];
 	make_alphabet(arr_node[0], arr_code, 0, code);
 
 	write_uint(size_text, out);
