@@ -16,7 +16,7 @@ typedef struct Tree {
 }Tree;
 
 
-typedef struct Letter—ode {
+typedef struct LetterCode {
 	bool code[256];
 	int size;
 }LetterCode;
