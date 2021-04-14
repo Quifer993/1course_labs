@@ -147,7 +147,6 @@ void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsign
 		return;
 	}
 
-	unsigned char code = 0;
 	for (int i = 0; i < size; i++) {
 		unsigned char letter;
 		if (fscanf(in, "%c", &letter) == EOF) {
@@ -156,7 +155,7 @@ void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsign
 		}
 
 		for (int j = 0; j < codes[letter].size; j++) {
-			code = codes[letter].code[j];
+			unsigned char code = codes[letter].code[j];
 			bits_pos++;
 			byte >>= (8 - bits_pos);
 			byte |= code;
