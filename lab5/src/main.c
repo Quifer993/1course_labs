@@ -29,7 +29,7 @@ void delete_tree(Tree* tree) {
 	if (tree->right != NULL)
 		delete_tree(tree->right);
 
-	if (tree != NULL && (tree->type == BRANCH) )
+	if (tree != NULL && tree->type == BRANCH )
 		free(tree);
 }
 
@@ -37,11 +37,11 @@ void delete_tree(Tree* tree) {
 unsigned char bits_to_bytes(const bool bits[], int num_bits, FILE* out) {
 	int num_bytes = (num_bits - 1) / 8 + 1;
 	unsigned char byte = 0;
-	int j = 0;
-	for (j = 0; j < num_bytes - 1; j++) {
+	int bits_pos = 0;
+	for (bits_pos = 0; bits_pos < num_bytes - 1; bits_pos++) {
 		for (int i = 0; i < 8; i++) {
 			byte <<= 1;
-			if ( (j * 8 + i < num_bits) && (bits[j * 8 + i]) ){
+			if ( (bits_pos * 8 + i < num_bits) && (bits[bits_pos * 8 + i]) ){
 				byte |= 1;
 			}
 		}
@@ -50,7 +50,7 @@ unsigned char bits_to_bytes(const bool bits[], int num_bits, FILE* out) {
 
 	for (int i = 0; i < 8; i++) {
 		byte <<= 1;
-		if ( (j * 8 + i < num_bits) && (bits[j * 8 + i]) ) {
+		if ( (bits_pos * 8 + i < num_bits) && (bits[bits_pos * 8 + i]) ) {
 			byte |= 1;
 		}
 	}
@@ -83,7 +83,9 @@ Tree* make_node(Tree* left, Tree* right, int type, int count, unsigned char byte
 
 
 int compare(const void* lphs, const void* rphs) {
-	return (*(Tree* const*)rphs)->count - (*(Tree* const*)lphs)->count;
+	int lhs = (*(Tree* const*)lphs)->count;
+	int rhs = (*(Tree* const*)rphs)->count;
+	return rhs - lhs;
 }
 
 
@@ -108,25 +110,25 @@ void make_alphabet(const Tree* const tree, LetterCode* codes, int height_now, bo
 }
 
 
-void find_leaves(const Tree* const tree, int height_now, int* byte_pos, bool bits[]) {
+void find_leaves(const Tree* const tree, int height_now, int* bits_pos, bool bits[]) {
 	if (tree->right == NULL && tree->left == NULL) {
-		bits[(*byte_pos)++] = 1;
+		bits[(*bits_pos)++] = 1;
 
 		for (int i = 0; i < 8; i++) {
 			unsigned char code_bit = (tree->byte << i);
 			unsigned char code = code_bit >> 7;
-			bits[(*byte_pos)++] = code;
+			bits[(*bits_pos)++] = code;
 		}
 		
 	}
 	else {
-		bits[(*byte_pos)++] = 0;
+		bits[(*bits_pos)++] = 0;
 		if (tree->left != NULL) {
-			find_leaves(tree->left, height_now + 1, byte_pos, bits);
+			find_leaves(tree->left, height_now + 1, bits_pos, bits);
 		}
 
 		if (tree->right != NULL) {
-			find_leaves(tree->right, height_now + 1, byte_pos, bits);
+			find_leaves(tree->right, height_now + 1, bits_pos, bits);
 		}
 	}
 }
@@ -134,13 +136,13 @@ void find_leaves(const Tree* const tree, int height_now, int* byte_pos, bool bit
 
 void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsigned char last_sym_size, unsigned char last_sym, bool* error) {
 	unsigned char byte = last_sym;
-	int byte_pos = last_sym_size;
+	int bits_pos = last_sym_size;
 	byte &= 255 << (8 - last_sym_size);
 
 	rewind(in);
 
-	char end_of_first_line[10];
-	if (fgets(end_of_first_line, 10, in) == NULL) {
+	char first_line[10];
+	if (fgets(first_line, 10, in) == NULL) {
 		*error = true;
 		return;
 	}
@@ -155,14 +157,13 @@ void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsign
 
 		for (int j = 0; j < codes[letter].size; j++) {
 			code = codes[letter].code[j];
-
-			byte_pos++;
-			byte >>= (8 - byte_pos);
+			bits_pos++;
+			byte >>= (8 - bits_pos);
 			byte |= code;
-			byte <<= (8 - byte_pos);
-			if (byte_pos == 8) {
+			byte <<= (8 - bits_pos);
+			if (bits_pos == 8) {
 				fputc(byte, out);
-				byte_pos = 0;
+				bits_pos = 0;
 				byte = 0;
 			}
 		}
@@ -171,23 +172,22 @@ void write_text(const LetterCode codes[], FILE* in , FILE* out, int size, unsign
 }
  
 
-int write_alphabet(FILE* out, const Tree* const tree, int size, unsigned char* last_sym, bool* error) {
+unsigned char write_alphabet(FILE* out, const Tree* const tree, int size, unsigned char* last_sym, bool* error) {
 	int size_tree = 2 * size - 1;
 
 	bool* bits = (bool*)malloc((size_tree + size * 8) * sizeof(bool));
 	if (bits == NULL) {
 		*error = true;
-		return 1;
-		
+		return -1;
 	}
 
-	int byte_pos = 0;
-	find_leaves(tree, 1, &byte_pos, bits);
+	int bits_pos = 0;
+	find_leaves(tree, 1, &bits_pos, bits);
 
-	*last_sym = bits_to_bytes(bits, byte_pos, out);
+	*last_sym = bits_to_bytes(bits, bits_pos, out);
 
 	free(bits);
-	return byte_pos % 8;
+	return bits_pos % 8;
 }
 
 
@@ -283,68 +283,68 @@ void read_uint(FILE* in, unsigned int* result, bool* error) {
 }
 
 
-void create_tree(FILE* in, unsigned char* last_byte, unsigned int* byte_pos, Tree* node, Tree* root, bool* error) {
+void create_tree(FILE* in, unsigned char* last_byte, unsigned int* bits_pos, Tree* node, Tree* root, bool* error) {
 	if (*error)
 		return;
 
-	if (*byte_pos == 8) {
+	if (*bits_pos == 8) {
 		if (fscanf(in, "%c", last_byte) == EOF) {
 			delete_tree(root);
 			*error = true;
 			return;
 			
 		}
-		*byte_pos = 0;
+		*bits_pos = 0;
 	}
 
 	unsigned char code_bit = 0;
-	code_bit = *last_byte << *byte_pos;
+	code_bit = *last_byte << *bits_pos;
 	code_bit >>= 7;
 
-	(*byte_pos)++;
+	(*bits_pos)++;
 	if (code_bit == 0) {
 		node->left = make_node(NULL, NULL, BRANCH, 0, '0', error);
-		create_tree(in, last_byte, byte_pos, node->left, root, error);
+		create_tree(in, last_byte, bits_pos, node->left, root, error);
 		node->right = make_node(NULL, NULL, BRANCH, 0, '0', error);
-		create_tree(in, last_byte, byte_pos, node->right, root, error);
+		create_tree(in, last_byte, bits_pos, node->right, root, error);
 	}
 	else {
 		node->type = LEAF;
 		unsigned char byte = 0;
 		for (int i = 0; i < 8; i++) {
-			if (*byte_pos == 8) {
+			if (*bits_pos == 8) {
 				if (fscanf(in, "%c", last_byte) == EOF) {
 					delete_tree(root);
 					*error = true;
 					return;
 					
 				}
-				*byte_pos = 0;
+				*bits_pos = 0;
 			}
-			code_bit = *last_byte << *byte_pos;
+			code_bit = *last_byte << *bits_pos;
 			code_bit >>= 7;
 			byte <<= 1;
 			byte |= code_bit;
 
-			(*byte_pos)++;
+			(*bits_pos)++;
 		}
 		node->byte = byte;
 	}
 }
 
 
-void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* byte_pos, Tree* node, Tree* root, unsigned int* size_text, bool* error) {
+void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* bits_pos, Tree* node, Tree* root, unsigned int* size_text, bool* error) {
 	if (*error)
 		return;
 
-	if (*byte_pos == 8) {
+	if (*bits_pos == 8) {
 		if (fscanf(in, "%c", last_byte) == EOF) {
 			delete_tree(root);
 			*error = true;
 			return;
 			
 		}
-		*byte_pos = 0;
+		*bits_pos = 0;
 	}
 
 	if (node->right == NULL && node->left == NULL) {
@@ -356,16 +356,16 @@ void read_text_dec(FILE* in, FILE* out, unsigned char* last_byte, unsigned int* 
 	}
 	else {
 		unsigned char code_bit = 0;
-		code_bit = *last_byte << *byte_pos;
+		code_bit = *last_byte << *bits_pos;
 		code_bit >>= 7;
 
-		(*byte_pos)++;
+		(*bits_pos)++;
 		if (code_bit == 1) {
-			read_text_dec(in, out, last_byte, byte_pos, node->left, root, size_text, error);
+			read_text_dec(in, out, last_byte, bits_pos, node->left, root, size_text, error);
 		}
 		else
 		if (code_bit == 0) {
-			read_text_dec(in, out, last_byte, byte_pos, node->right, root, size_text, error);
+			read_text_dec(in, out, last_byte, bits_pos, node->right, root, size_text, error);
 		}
 	}
 }
@@ -375,13 +375,13 @@ void decoder(FILE* in, FILE* out, bool* error) {
 	unsigned int size_text = 0;
 	read_uint(in, &size_text, error);
 	unsigned char last_byte = 0;
-	unsigned int byte_pos = 8;
+	unsigned int bits_pos = 8;
 	Tree *root = make_node(NULL, NULL, BRANCH, 0, '0', error);
 
-	create_tree(in, &last_byte, &byte_pos, root, root, error);
+	create_tree(in, &last_byte, &bits_pos, root, root, error);
 
 	while (!(*error) && (size_text > 0) ) {
-		read_text_dec(in, out, &last_byte, &byte_pos, root, root, &size_text, error);
+		read_text_dec(in, out, &last_byte, &bits_pos, root, root, &size_text, error);
 	}
 
 	delete_tree(root);
@@ -402,11 +402,11 @@ int main() {
 		return 0;
 	}
 
-	char end_of_first_line[10];
-	if (fgets(end_of_first_line, 10, file_input) == NULL) {
+	char first_line[10];
+	if (fgets(first_line, 10, file_input) == NULL) {
 		error = true;
 	}
-	unsigned char mode_of_work = end_of_first_line[0];
+	unsigned char mode_of_work = first_line[0];
 
 	if (!error){
 		if (mode_of_work == 'c') {
