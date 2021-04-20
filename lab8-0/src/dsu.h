@@ -2,13 +2,6 @@
 #define FUNCTIONS_H
 
 
-typedef struct Edge {
-	int from;
-	int in;
-	int weight;
-}Edge;
-
-
 typedef struct Dsu {
 	int parent;
 	int leader;
@@ -22,9 +15,8 @@ typedef struct Answer{
 }Answer;
 
 
-int dsu_comparator(const void* ptr_left, const void* ptr_right);
 int dsu_find_lead(Dsu* array, int index);
-void dsu_sort(Dsu* array, Edge* edges, Answer* array_ans, int n, int m);
+void dsu_sort(Dsu* array, int from, int in);
 
 
 
