@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <malloc.h>
+#include <stdlib.h>
 #include <limits.h>
 #include "dsu.h"
+
+
+typedef struct Answer {
+	int first;
+	int second;
+}Answer;
 
 
 typedef struct Edge {
@@ -26,7 +33,7 @@ int dsu_comparator(const void* ptr_left, const void* ptr_right) {
 int check_parents(Dsu* array, Answer* array_ans, int n) {
 	int parents = 0;
 	for (int i = 0; i < n; i++) {
-		if (array[i].leader == i)
+		if (array[i].parent == i)
 			parents++;
 
 		if (parents > 1) {
@@ -69,8 +76,7 @@ int pull_edges(Edge *edges, int m, int n) {
 
 
 int main() {
-	int n;
-	int m;
+	int n, m;
 	if (scanf("%i%i", &n , &m) == EOF) {
 		printf("bad number of lines");
 		return 0;
@@ -86,7 +92,6 @@ int main() {
 		return 0;
 	}
 
-
 	if (m < 0 || m > n * (n + 1) / 2) {
 		printf("bad number of edges");
 		return 0;
@@ -99,7 +104,6 @@ int main() {
 	graph.array = (Dsu*)malloc(n * sizeof(Dsu));
 	for (int i = 0; i < n; i++) {
 		graph.array[i].weight = 1;
-		graph.array[i].leader = i;
 		graph.array[i].parent= i;
 	}
 
@@ -109,21 +113,21 @@ int main() {
 
 	int edges_count = 0;
 	for (int i = 0; i < m; i++) {
-		dsu_sort(graph.array, edges, array_ans, n, m);
-		if (from < in) {
-			array_ans[edges_count].first = from + 1;
-			array_ans[edges_count++].second = in + 1;
-		}
-		else {
-			array_ans[edges_count].first = in + 1;
-			array_ans[edges_count++].second = from + 1;
+		if (dsu_find_parents(graph.array, edges[i].from, edges[i].in)) {
+			if (edges[i].from < edges[i].in) {
+				array_ans[edges_count].first = edges[i].from + 1;
+				array_ans[edges_count++].second = edges[i].in + 1;
+			}
+			else {
+				array_ans[edges_count].first = edges[i].in + 1;
+				array_ans[edges_count++].second = edges[i].from + 1;
+			}
 		}
 	}	
 
 	if (check_parents(graph.array, array_ans, n) != 1) {
 		printf("no spanning tree");
 	}
-
 
 	free(graph.array);
 	free(edges);
