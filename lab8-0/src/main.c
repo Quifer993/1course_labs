@@ -107,26 +107,24 @@ int main() {
 		graph.array[i].parent= i;
 	}
 
-	if (pull_edges(edges, m, n) == -1) {
-		return 0;;
-	}
-
-	int edges_count = 0;
-	for (int i = 0; i < m; i++) {
-		if (dsu_find_parents(graph.array, edges[i].from, edges[i].in)) {
-			if (edges[i].from < edges[i].in) {
-				array_ans[edges_count].first = edges[i].from + 1;
-				array_ans[edges_count++].second = edges[i].in + 1;
-			}
-			else {
-				array_ans[edges_count].first = edges[i].in + 1;
-				array_ans[edges_count++].second = edges[i].from + 1;
+	if (pull_edges(edges, m, n) != -1) {
+		int edges_count = 0;
+		for (int i = 0; i < m; i++) {
+			if (dsu_find_parents(graph.array, edges[i].from, edges[i].in)) {
+				if (edges[i].from < edges[i].in) {
+					array_ans[edges_count].first = edges[i].from + 1;
+					array_ans[edges_count++].second = edges[i].in + 1;
+				}
+				else {
+					array_ans[edges_count].first = edges[i].in + 1;
+					array_ans[edges_count++].second = edges[i].from + 1;
+				}
 			}
 		}
-	}	
 
-	if (check_parents(graph.array, array_ans, n) != 1) {
-		printf("no spanning tree");
+		if (check_parents(graph.array, array_ans, n) != 1) {
+			printf("no spanning tree");
+		}
 	}
 
 	free(graph.array);
