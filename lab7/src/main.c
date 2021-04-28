@@ -62,7 +62,7 @@ int top_sort(FILE* test_file, Graph* graph, int* answer) {
 	char* array_maked;
 	int line;
 	int column;
-	array_maked = (int*)calloc(graph->n, sizeof(int));
+	array_maked = (char*)calloc(graph->n, sizeof(char));
  	if (array_maked == NULL) {
 		return -1;
 	}
