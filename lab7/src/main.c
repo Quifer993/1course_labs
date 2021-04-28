@@ -2,14 +2,13 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <stdbool.h>
 
 
 enum Color { WHITE, GRAY, BLACK };
 
 
 typedef struct Node {
-	int value;
+	char value;
 }Node;
 
 
@@ -21,8 +20,8 @@ typedef struct Graph {
 }Graph;
 
 
-bool check_line(int* array_maked, const Graph* graph, int* pointer, int line, int * answer) {
-	bool is_cycle = false;
+char check_line(char* array_maked, const Graph* graph, int* pointer, int line, int * answer) {
+	char is_cycle = 0;
 	if (array_maked[line] != GRAY) {
 		for (int j = 0; j < graph->n && !is_cycle; j++) {//строка
 			if (graph->array[line * graph->n + j].value == 1) {
@@ -35,7 +34,7 @@ bool check_line(int* array_maked, const Graph* graph, int* pointer, int line, in
 		}
 	}
 	else {
-		is_cycle = true;
+		is_cycle = 1;
 	}
 	array_maked[line] = BLACK;
 	if (*pointer >= 0 ) {
@@ -45,8 +44,8 @@ bool check_line(int* array_maked, const Graph* graph, int* pointer, int line, in
 }
 
 
-bool has_cycle(const Graph* graph, int* array_maked, int* answer) {
-	bool is_cycle = false;
+char has_cycle(const Graph* graph, char* array_maked, int* answer) {
+	char is_cycle = 0;
 
 	int pointer = graph->n - 1;
 	for (int i = 0; i < graph->n && !is_cycle; i++) {//столбец
@@ -60,7 +59,7 @@ bool has_cycle(const Graph* graph, int* array_maked, int* answer) {
 
 
 int top_sort(FILE* test_file, Graph* graph, int* answer) {
-	int* array_maked;
+	char* array_maked;
 	int line;
 	int column;
 	array_maked = (int*)calloc(graph->n, sizeof(int));
@@ -87,7 +86,7 @@ int top_sort(FILE* test_file, Graph* graph, int* answer) {
 		graph->array[line * graph->n + column].value = 1;
 	}
 
-	bool is_cycle = has_cycle(graph, array_maked, answer);
+	char is_cycle = has_cycle(graph, array_maked, answer);
 	free(array_maked);
 	return is_cycle;
 }
