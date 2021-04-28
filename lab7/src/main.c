@@ -198,7 +198,7 @@ int main() {
 
 	if (graph.n <= 0 || graph.n > 2000) {
 		if (graph.n == 0) {
-			printf("impossible to sort");
+			printf("bad number of lines");
 		}
 		else {
 			printf("bad number of vertices");
