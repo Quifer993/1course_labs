@@ -13,7 +13,7 @@ typedef struct Node {
 typedef struct Graph {
 	Node* array;
 	int n;
-	int m;//color
+	int m;
 
 }Graph;
 
@@ -21,14 +21,13 @@ typedef struct Graph {
 char check_line(char* array_maked, const Graph* graph, int* pointer, int line, int * answer) {
 	char is_cycle = 0;
 	if (array_maked[line] != GRAY) {
-		for (int j = 0; j < graph->n && !is_cycle; j++) {//строка
+		for (int j = 0; j < graph->n && !is_cycle; j++) {//
 			if (graph->array[line * graph->n + j].value == 1) {
 				if (array_maked[j] != BLACK) {
 					array_maked[line] = GRAY;
 					is_cycle = check_line(array_maked, graph, pointer, j, answer);
 				}
 			}
-
 		}
 	}
 	else {
@@ -46,7 +45,7 @@ char has_cycle(const Graph* graph, char* array_maked, int* answer) {
 	char is_cycle = 0;
 
 	int pointer = graph->n - 1;
-	for (int i = 0; i < graph->n && !is_cycle; i++) {//столбец
+	for (int i = 0; i < graph->n && !is_cycle; i++) {//
 		if (array_maked[i] == WHITE) {
 			is_cycle = check_line(array_maked, graph, &pointer, i, answer);
 		}
@@ -80,7 +79,6 @@ int top_sort(FILE* test_file, Graph* graph, int* answer) {
 
 		line -= 1;
 		column -= 1;
-
 		graph->array[line * graph->n + column].value = 1;
 	}
 
