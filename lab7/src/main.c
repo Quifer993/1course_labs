@@ -167,6 +167,13 @@ int top_sort(FILE* test_file, Graph* graph, int* answer) {
 			free(array_maked);
 			return -1;
 		}
+
+		if (line < 1 || column < 1 ||line > graph->n ||column > graph->n) {
+			printf("bad vertex");
+			free(array_maked);
+			return -1;
+		}
+
 		line -= 1;
 		column -= 1;
 
