@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <malloc.h>
-#include <stdlib.h>
-#include <limits.h>
 
 
 enum Color { WHITE, GRAY, BLACK };
