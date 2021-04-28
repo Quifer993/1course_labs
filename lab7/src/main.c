@@ -196,13 +196,8 @@ int main() {
 		return 0;
 	}
 
-	if (graph.n <= 0 || graph.n > 2000) {
-		if (graph.n == 0) {
-			printf("bad number of lines");
-		}
-		else {
-			printf("bad number of vertices");
-		}
+	if (graph.n < 0 || graph.n > 2000) {
+		printf("bad number of vertices");
 		fclose(file);
 		return 0;
 	}
