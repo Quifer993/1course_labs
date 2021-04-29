@@ -24,7 +24,7 @@ typedef struct Graph {
 }Graph;
 
 
-char assembly_ostov(const Graph* graph, int* array_maked, Answer* answer) {
+char assembly_ostov(const Graph* graph, Answer* answer) {
 	int count = 1;
 	answer[0].length = MAKED;
 	answer[0].from = 0;
@@ -66,32 +66,23 @@ char assembly_ostov(const Graph* graph, int* array_maked, Answer* answer) {
 }
 
 
-	int prim(FILE * test_file, Graph * graph, Answer * answer) {
-	int* array_maked;
-	array_maked = (int*)calloc(graph->n, sizeof(int));
-	if (array_maked == NULL) {
-		return -1;
-	}
-
+int prim(FILE * test_file, Graph * graph, Answer * answer) {
 	int line;
 	int column;
 	int weight;
 	for (int i = 0; i < graph->m; i++) {
 		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
-			free(array_maked);
 			return -1;
 		}
 
 		if (line < 1 || column < 1 || line > graph->n || column > graph->n) {
 			printf("bad vertex");
-			free(array_maked);
 			return -1;
 		}
 
 		if (weight > INT_MAX || weight < 0) {
 			printf("bad length");
-			free(array_maked);
 			return -1;
 		}
 
@@ -102,8 +93,7 @@ char assembly_ostov(const Graph* graph, int* array_maked, Answer* answer) {
 		graph->array[column * graph->n + line].value = weight;
 	}
 
-	char is_create = assembly_ostov(graph, array_maked, answer);
-	free(array_maked);
+	char is_create = assembly_ostov(graph, answer);
 	return is_create;
 }
 
