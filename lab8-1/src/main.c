@@ -1,72 +1,83 @@
 #include <stdio.h>
 #include <malloc.h>
+#include <limits.h>
 
 
-enum Color { WHITE, GRAY, BLACK };
+enum Inf{ INFINITY = -2, MAKED = -1};
+
+
+typedef struct Answer {
+	int from;
+	int length;
+}Answer;
 
 
 typedef struct Node {
-	char value;
+	int value;
 }Node;
 
 
 typedef struct Graph {
 	Node* array;
 	int n;
-	int m;//color
-
+	int m;
 }Graph;
 
 
-char check_line(char* array_maked, const Graph* graph, int* pointer, int line, int* answer) {
-	char is_cycle = 0;
-	if (array_maked[line] != GRAY) {
-		for (int j = 0; j < graph->n && !is_cycle; j++) {//
-			if (graph->array[line * graph->n + j].value == 1) {
-				if (array_maked[j] != BLACK) {
-					array_maked[line] = GRAY;
-					is_cycle = check_line(array_maked, graph, pointer, j, answer);
+char assembly_ostov(const Graph* graph, int* array_maked, Answer* answer) {
+	int count = 1;
+	answer[0].length = MAKED;
+	answer[0].from = 0;
+	Answer min;
+	min.length = INFINITY;
+	min.from = 0;
+
+	while (count < graph->n) {
+		char used = 0;
+		for (int j = 0; j < graph->n; j++) {
+			if (graph->array[min.from * graph->n + j].value > 0 && answer[j].length != MAKED) {
+				if (graph->array[min.from * graph->n + j].value < answer[j].length || answer[j].length == INFINITY) {
+					answer[j].length = graph->array[min.from * graph->n + j].value;
+					answer[j].from = min.from;
 				}
 			}
-
 		}
+	
+		min.length = INFINITY;
+		min.from = 0;
+		for (int i = 0; i < graph->n; i++) {
+			if ( (answer[i].length > 0 && answer[i].length < min.length) || (min.length == INFINITY && answer[i].length > 0)) {
+				if (answer[i].length < answer[min.from].length || min.from == 0) {
+					min.from = i;
+				}
+				used = 1;
+			}
+		}
+
+		answer[min.from].length = MAKED;
+		if (used == 0) {
+			return 0;
+		}
+		count++;
 	}
-	else {
-		is_cycle = 1;
-	}
-	array_maked[line] = BLACK;
-	if (*pointer >= 0) {
-		answer[(*pointer)--] = line + 1;
-	}
-	return is_cycle;
+
+	return 1;
+
 }
 
 
-char has_cycle(const Graph* graph, char* array_maked, int* answer) {
-	char is_cycle = 0;
-
-	int pointer = graph->n - 1;
-	for (int i = 0; i < graph->n && !is_cycle; i++) {//
-		if (array_maked[i] == WHITE) {
-			is_cycle = check_line(array_maked, graph, &pointer, i, answer);
-		}
-	}
-
-	return is_cycle;
-}
-
-
-int top_sort(FILE* test_file, Graph* graph, int* answer) {
-	char* array_maked;
-	int line;
-	int column;
-	array_maked = (char*)calloc(graph->n, sizeof(char));
+	int prim(FILE * test_file, Graph * graph, Answer * answer) {
+	int* array_maked;
+	array_maked = (int*)calloc(graph->n, sizeof(int));
 	if (array_maked == NULL) {
 		return -1;
 	}
 
+	int line;
+	int column;
+	int weight;
 	for (int i = 0; i < graph->m; i++) {
-		if (fscanf(test_file, "%i%i", &line, &column) == EOF) {
+		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
 			free(array_maked);
 			return -1;
@@ -78,22 +89,29 @@ int top_sort(FILE* test_file, Graph* graph, int* answer) {
 			return -1;
 		}
 
+		if (weight > INT_MAX || weight < 0) {
+			printf("bad length");
+			free(array_maked);
+			return -1;
+		}
+
 		line -= 1;
 		column -= 1;
 
-		graph->array[line * graph->n + column].value = 1;
+		graph->array[line * graph->n + column].value = weight;
+		graph->array[column * graph->n + line].value = weight;
 	}
 
-	char is_cycle = has_cycle(graph, array_maked, answer);
+	char is_create = assembly_ostov(graph, array_maked, answer);
 	free(array_maked);
-	return is_cycle;
+	return is_create;
 }
 
 
 int main() {
 	FILE* file;
 	file = stdin;
-	Graph graph;
+	Graph graph; 
 
 	if (fscanf(file, "%i", &graph.n) == EOF) {
 		printf("bad number of lines");
@@ -107,10 +125,15 @@ int main() {
 		return 0;
 	}
 
-	if (graph.n < 0 || graph.n > 5000) {
-		printf("bad number of vertices");
-		fclose(file);
+	if (graph.n <= 0 || graph.n > 5000) {
+		if (graph.n == 0) {
+			printf("no spanning tree");
+		}
+		else {
+			printf("bad number of vertices");
+		}
 		return 0;
+
 	}
 
 	if (graph.m < 0 || graph.m > graph.n * (graph.n + 1) / 2) {
@@ -125,15 +148,25 @@ int main() {
 		return 0;
 	}
 
-
-	int* answer = (int*)malloc(graph.n * sizeof(int));
-	int is_cycle = top_sort(file, &graph, answer);
-	if (is_cycle > 0) {
-		printf("impossible to sort");
+	Answer* answer = (Answer*)malloc((graph.n) * sizeof(Answer));
+	if (answer == NULL) {
+		free(graph.array);
+		fclose(file);
+		return 0;
 	}
-	else if (is_cycle == 0) {
-		for (int i = 0; i < graph.n; i++) {
-			printf("%i ", answer[i]);
+	for (int i = 0; i < graph.n; i++) {
+		answer[i].length = INFINITY;
+	}
+
+	int is_spanning = prim(file, &graph, answer);
+	if (is_spanning == 0) {
+		printf("no spanning tree");
+	}
+	else {
+		if (is_spanning == 1) {
+			for (int i = 1; i < graph.n; i++) {
+				printf("%i %i\n", answer[i].from + 1, i + 1);
+			}
 		}
 	}
 
