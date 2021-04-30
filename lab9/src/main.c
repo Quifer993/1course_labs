@@ -24,7 +24,7 @@ typedef struct Graph {
 	int m;
 }Graph;
 
-// 3 1 3 3 1 2 3 2 3 4 1 3 6
+
 char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
 	int count = 1;
 	int count_int_max = 0;
@@ -70,7 +70,6 @@ char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
 		if (min.length > INT_MAX) {
 			answer[min.from].length = 2147483648; // INT_MAX + 1
 			answer[min.from].type = INT_MAXX;
-			//count_int_max++;
 		}
 		else {
 			answer[min.from].length = min.length;
@@ -109,7 +108,7 @@ int Deikstra(int from, int in, FILE* test_file, Graph* graph, Answer* answer) {
 	int column;
 	unsigned int weight;
 	for (int i = 0; i < graph->m; i++) {
-		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
+		if (fscanf(test_file, "%i%i%d", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
 			return ERROR;
 		}
@@ -119,7 +118,7 @@ int Deikstra(int from, int in, FILE* test_file, Graph* graph, Answer* answer) {
 			return ERROR;
 		}
 
-		if (weight > INT_MAX || weight < 0) {
+		if (weight > INT_MAX) {
 			printf("bad length");
 			return ERROR;
 		}
@@ -204,11 +203,8 @@ int main() {
 		answer[i].length = 0;
 	}
 
-	unsigned int length_way = 0;
 	int is_spanning = Deikstra(from, in, file, &graph, answer);
 
-
-	// 3 1 3 3 1 2 3 2 3 4 1 3 6
 	if (is_spanning != ERROR) {
 		for (int i = 0; i < graph.n; i++) {
 			if (answer[i].type == OVERFLOW || answer[i].type == INT_MAXX) {
@@ -220,7 +216,6 @@ int main() {
 			else {
 				printf("%i ", answer[i].length);
 			}
-
 		}
 		printf("\n");
 
@@ -230,17 +225,12 @@ int main() {
 		}
 		else if (is_spanning == OK) {
 			int point = in;
-			/*if (answer[point].type == OVERFLOW) {
-				printf("overflow");
-			}
-			else {*/
 			printf("%i ", in + 1);
 			while (answer[point].from != from) {
 				printf("%i ", answer[point].from + 1);
 				point = answer[point].from;
 			}
 			printf("%i", from + 1);
-			//}
 		}
 		else {
 			printf("overflow");
