@@ -214,7 +214,7 @@ int main() {
 				printf("oo ");
 			}
 			else {
-				printf("%i ", answer[i].length);
+				printf("%u ", answer[i].length);
 			}
 		}
 		printf("\n");
