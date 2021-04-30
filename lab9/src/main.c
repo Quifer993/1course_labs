@@ -108,7 +108,7 @@ int Deikstra(int from, int in, FILE* test_file, Graph* graph, Answer* answer) {
 	int column;
 	unsigned int weight;
 	for (int i = 0; i < graph->m; i++) {
-		if (fscanf(test_file, "%i%i%d", &line, &column, &weight) == EOF) {
+		if (fscanf(test_file, "%i%i%u", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
 			return ERROR;
 		}
