@@ -17,4 +17,4 @@ build/
 *.txt
 *.sln
 *.vcxproj*
-
+.vs
