@@ -21,8 +21,8 @@ typedef struct Graph {
 bool check_line(char* colors, const Graph* graph, int* pointer, int line, int* answer) {
 	char is_cycle = false;
 	if (colors[line] != GRAY) {
-		for (int j = 0; j < graph->vertices && !is_cycle && graph->matrix[line * graph->vertices + j].value == 1; j++ ) {
-			if (colors[j] != BLACK) {
+		for (int j = 0; j < graph->vertices && !is_cycle; j++ ) {
+			if (colors[j] != BLACK && graph->matrix[line * graph->vertices + j].value == 1) {
 				colors[line] = GRAY;
 				is_cycle = check_line(colors, graph, pointer, j, answer);
 			}
