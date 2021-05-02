@@ -117,7 +117,6 @@ int main() {
 		return 0;
 	}
 
-	char* colors;
 	int* answer = (int*)malloc(graph.vertices * sizeof(int));
 	if (answer == NULL) {
 		free(graph.matrix);
