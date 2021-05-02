@@ -146,14 +146,14 @@ int main() {
 		edges_ans[i].length = INFINITY;
 	}
 
-	if (input_edges(file, &graph) == true) {
-		if ( prim(&graph, edges_ans) == false) {
-			printf("no spanning tree");
-		}
-		else{
+	if ( input_edges(file, &graph) ) {
+		if ( prim(&graph, edges_ans) ) {
 			for (int i = 1; i < graph.n; i++) {
 				printf("%i %i\n", edges_ans[i].from + 1, i + 1);
 			}
+		}
+		else{
+            printf("no spanning tree");
 		}
 	}	
 
