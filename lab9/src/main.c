@@ -1,16 +1,17 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <malloc.h>
 #include <limits.h>
 
 
-enum WorkWithOstov { INT_MAXX = -3, MAKED = -2, INFINITY = -1, WORKS = 0, OK = 1, OVERFLOW = 2, ERROR = 3, NO_PATH = 4 };
+enum WorkWithOstov { INT_MAXX = -3, MAKED = -2, INFINITY = -1, WORKS = 0, OK = 1, OVERFLOW = 2, NO_PATH = 3 };
 
 
-typedef struct Answer {
+typedef struct Edge {
 	int from;
 	unsigned int length;
 	char type;
-}Answer;
+}Edge;
 
 
 typedef struct Node {
@@ -19,35 +20,35 @@ typedef struct Node {
 
 
 typedef struct Graph {
-	Node* array;
+	Node* matrix;
 	int n;
 	int m;
 }Graph;
 
 
-char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
+char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	int count = 1;
 	int count_int_max = 0;
-	answer[from].length = 0;
-	answer[from].from = from;
-	answer[from].type = MAKED;
-	Answer min = {from, 0, INFINITY};
+	edges_ans[from].length = 0;
+	edges_ans[from].from = from;
+	edges_ans[from].type = MAKED;
+	Edge min = {from, 0, INFINITY};
 
 	while (count < graph->n) {
 		char used = 0;
 		for (int j = 0; j < graph->n; j++) {
-			if (graph->array[min.from * graph->n + j].value > 0 && answer[j].type > MAKED) {
-				if (graph->array[min.from * graph->n + j].value + answer[min.from].length <= answer[j].length || answer[j].type == INFINITY) {
-					answer[j].length = graph->array[min.from * graph->n + j].value + answer[min.from].length;
-					if (answer[j].length > INT_MAX) {
-						answer[j].type = OVERFLOW;
+			if (graph->matrix[min.from * graph->n + j].value > 0 && edges_ans[j].type > MAKED) {
+				if (graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length <= edges_ans[j].length || edges_ans[j].type == INFINITY) {
+					edges_ans[j].length = graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length;
+					if (edges_ans[j].length > INT_MAX) {
+						edges_ans[j].type = OVERFLOW;
 					}
 					else {
-						answer[j].type = WORKS;			
+						edges_ans[j].type = WORKS;			
 					}
-					answer[j].from = min.from;
+					edges_ans[j].from = min.from;
 				}
-				if (graph->array[min.from * graph->n + j].value + answer[min.from].length > INT_MAX) {
+				if (graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length > INT_MAX) {
 					count_int_max++;
 				}
 			}
@@ -57,23 +58,23 @@ char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
 		min.type = INFINITY;
 		min.from = from;
 		for (int i = 0; i < graph->n; i++) {
-			if (answer[i].length > 0 && (answer[i].length < min.length || min.type == INFINITY) && answer[i].type != MAKED) {
-				if (answer[i].length <= answer[min.from].length || min.from == from) {
+			if (edges_ans[i].length > 0 && (edges_ans[i].length < min.length || min.type == INFINITY) && edges_ans[i].type != MAKED) {
+				if (edges_ans[i].length <= edges_ans[min.from].length || min.from == from) {
 					min.from = i;
 					min.type = WORKS;
-					min.length = answer[i].length;
+					min.length = edges_ans[i].length;
 				}
 				used = 1;
 			}
 		}
 
 		if (min.length > INT_MAX) {
-			answer[min.from].length = 2147483648; // INT_MAX + 1
-			answer[min.from].type = INT_MAXX;
+			edges_ans[min.from].length = 2147483648; // INT_MAX + 1
+			edges_ans[min.from].type = INT_MAXX;
 		}
 		else {
-			answer[min.from].length = min.length;
-			answer[min.from].type = MAKED;
+			edges_ans[min.from].length = min.length;
+			edges_ans[min.from].type = MAKED;
 		}
 
 		if (used == 0) {
@@ -87,15 +88,15 @@ char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
 		count++;
 	}
 
-	if (count_int_max > 1 && (answer[in].type == OVERFLOW || answer[in].type == INT_MAXX) )
+	if (count_int_max > 1 && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
 		return OVERFLOW;
 
 	int point = in;
-	while (answer[point].from != from) {
+	while (edges_ans[point].from != from) {
 		if (count < 0) {
 			return NO_PATH;
 		}
-		point = answer[point].from;
+		point = edges_ans[point].from;
 		count--;
 	}
 
@@ -103,35 +104,34 @@ char assembly_ostov(int from, int in, const Graph* graph, Answer* answer) {
 }
 
 
-int Deikstra(int from, int in, FILE* test_file, Graph* graph, Answer* answer) {
+bool read_edges(FILE* test_file, Graph* graph) {
 	int line;
 	int column;
 	unsigned int weight;
 	for (int i = 0; i < graph->m; i++) {
 		if (fscanf(test_file, "%i%i%u", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
-			return ERROR;
+			return false;
 		}
 
 		if (line < 1 || column < 1 || line > graph->n || column > graph->n) {
 			printf("bad vertex");
-			return ERROR;
+			return false;
 		}
 
 		if (weight > INT_MAX) {
 			printf("bad length");
-			return ERROR;
+			return false;
 		}
 
 		line -= 1;
 		column -= 1;
 
-		graph->array[line * graph->n + column].value = weight;
-		graph->array[column * graph->n + line].value = weight;
+		graph->matrix[line * graph->n + column].value = weight;
+		graph->matrix[column * graph->n + line].value = weight;
 	}
 
-	char is_create = assembly_ostov(from, in, graph, answer);
-	return is_create;
+	return true;
 }
 
 
@@ -186,49 +186,49 @@ int main() {
 		return 0;
 	}
 
-	graph.array = (Node*)calloc(graph.n * graph.n, sizeof(Node));
-	if (graph.array == NULL) {
+	graph.matrix = (Node*)calloc(graph.n * graph.n, sizeof(Node));
+	if (graph.matrix == NULL) {
 		fclose(file);
 		return 0;
 	}
 
-	Answer* answer = (Answer*)malloc((graph.n) * sizeof(Answer));
-	if (answer == NULL) {
-		free(graph.array);
+	Edge* edges_ans = (Edge*)malloc((graph.n) * sizeof(Edge));
+	if (edges_ans == NULL) {
+		free(graph.matrix);
 		fclose(file);
 		return 0;
 	}
 	for (int i = 0; i < graph.n; i++) {
-		answer[i].type = INFINITY;
-		answer[i].length = 0;
+		edges_ans[i].type = INFINITY;
+		edges_ans[i].length = 0;
 	}
 
-	int is_spanning = Deikstra(from, in, file, &graph, answer);
-
-	if (is_spanning != ERROR) {
+	if ( read_edges(file, &graph) ) {
+		int result_type = Deikstra(from, in, &graph, edges_ans);
+		
 		for (int i = 0; i < graph.n; i++) {
-			if (answer[i].type == OVERFLOW || answer[i].type == INT_MAXX) {
+			if (edges_ans[i].type == OVERFLOW || edges_ans[i].type == INT_MAXX) {
 				printf("INT_MAX+ ");
 			}
-			else if (answer[i].type == INFINITY) {
+			else if (edges_ans[i].type == INFINITY) {
 				printf("oo ");
 			}
 			else {
-				printf("%u ", answer[i].length);
+				printf("%u ", edges_ans[i].length);
 			}
 		}
 		printf("\n");
 
-		if (is_spanning == NO_PATH) {
+		if (result_type == NO_PATH) {
 			printf("no path");
 
 		}
-		else if (is_spanning == OK) {
+		else if (result_type == OK) {
 			int point = in;
 			printf("%i ", in + 1);
-			while (answer[point].from != from) {
-				printf("%i ", answer[point].from + 1);
-				point = answer[point].from;
+			while (edges_ans[point].from != from) {
+				printf("%i ", edges_ans[point].from + 1);
+				point = edges_ans[point].from;
 			}
 			printf("%i", from + 1);
 		}
@@ -236,9 +236,9 @@ int main() {
 			printf("overflow");
 		}
 	}
-
-	free(graph.array);
-	free(answer);
+	
+	free(graph.matrix);
+	free(edges_ans);
 	fclose(file);
 	return 0;
 }
