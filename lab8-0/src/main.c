@@ -5,60 +5,50 @@
 #include "dsu.h"
 
 
-typedef struct Answer {
-	int first;
-	int second;
-}Answer;
-
-
 typedef struct Edge {
 	int from;
-	int in;
+	int to;
 	int weight;
-}Edge;
+} Edge;
 
 
-typedef struct Graph {
-	Dsu* array;
-}Graph;
-
-
-int dsu_comparator(const void* ptr_left, const void* ptr_right) {
+int compare_edges(const void* ptr_left, const void* ptr_right) {
 	int left = ((Edge*)ptr_left)->weight;
 	int right = ((Edge*)ptr_right)->weight;
 	return left - right;
 }
 
 
-int check_parents(Dsu* array, Answer* array_ans, int n) {
+int check_parents(Dsu* array, Edge* edges_ans, int n) {
 	int parents = 0;
 	for (int i = 0; i < n; i++) {
-		if (array[i].parent == i)
+		if (array[i].parent == i) {
 			parents++;
+		}
 
 		if (parents > 1) {
 			return parents;
 		}
 	}
 	for (int i = 0; i < n - 1; i++) {
-		printf("%i %i\n", array_ans[i].first, array_ans[i].second);
+		printf("%i %i\n", edges_ans[i].from, edges_ans[i].to);
 	}
 	return 1;
 }
 
 
 int pull_edges(Edge *edges, int m, int n) {
-	int strings = 0;
+	int counter_strings = 0;
 
 	for (int i = 0; i < m; i++) {
-		if (scanf("%i%i%i", &edges[i].from, &edges[i].in, &edges[i].weight) == EOF) {
-			if (strings < m) {
+		if (scanf("%i%i%i", &edges[i].from, &edges[i].to, &edges[i].weight) == EOF) {
+			if (counter_strings < m) {
 				printf("bad number of lines");
 			}
 			return -1;
 		}
-		strings++;
-		if (edges[i].from > n || edges[i].in > n || edges[i].from < 1 || edges[i].from >5000 || edges[i].in > 5000 || edges[i].in < 1) {
+		counter_strings++;
+		if (edges[i].from > n || edges[i].to > n || edges[i].from < 1 || edges[i].from >5000 || edges[i].to > 5000 || edges[i].to < 1) {
 			printf("bad vertex");
 			return -1;
 		}
@@ -67,11 +57,33 @@ int pull_edges(Edge *edges, int m, int n) {
 			return -1;
 		}
 		edges[i].from -= 1;
-		edges[i].in -= 1;
+		edges[i].to -= 1;
 	}
-	qsort(edges, m, sizeof(Edge), dsu_comparator);
 
 	return 0;
+}
+
+
+void alg_kraskal(Dsu* dsu_vertices, Edge* edges, int n, int m) {
+	qsort(edges, m, sizeof(Edge), compare_edges);
+	int edges_count = 0;
+
+	Edge* edges_ans = (Edge*)malloc((n - 1) * sizeof(Edge));
+	if (edges_ans == NULL) {
+		return;
+	}
+
+	for (int i = 0; i < m; i++) {
+		if (dsu_find_parents(dsu_vertices, edges[i].from, edges[i].to)) {
+			edges_ans[edges_count].from = edges[i].from + 1;
+			edges_ans[edges_count++].to = edges[i].to + 1;
+		}
+	}
+
+	if (check_parents(dsu_vertices, edges_ans, n) != 1) {
+		printf("no spanning tree");
+	}
+	free(edges_ans);
 }
 
 
@@ -98,37 +110,26 @@ int main() {
 	}
 
 	Edge* edges = (Edge*)malloc(m * sizeof(Edge));
-	Answer* array_ans = (Answer*)malloc((n - 1) * sizeof(Answer));
+	if (edges == NULL) {
+		return 0;
+	}
 
-	Graph graph;
-	graph.array = (Dsu*)malloc(n * sizeof(Dsu));
+	Dsu* dsu_vertices = (Dsu*)malloc(n * sizeof(Dsu));
+	if (dsu_vertices == NULL) {
+		free(edges);
+		return 0;
+	}
+
 	for (int i = 0; i < n; i++) {
-		graph.array[i].weight = 1;
-		graph.array[i].parent= i;
+		dsu_vertices[i].weight = 1;
+		dsu_vertices[i].parent= i;
 	}
 
 	if (pull_edges(edges, m, n) != -1) {
-		int edges_count = 0;
-		for (int i = 0; i < m; i++) {
-			if (dsu_find_parents(graph.array, edges[i].from, edges[i].in)) {
-				if (edges[i].from < edges[i].in) {
-					array_ans[edges_count].first = edges[i].from + 1;
-					array_ans[edges_count++].second = edges[i].in + 1;
-				}
-				else {
-					array_ans[edges_count].first = edges[i].in + 1;
-					array_ans[edges_count++].second = edges[i].from + 1;
-				}
-			}
-		}
-
-		if (check_parents(graph.array, array_ans, n) != 1) {
-			printf("no spanning tree");
-		}
+		alg_kraskal(dsu_vertices, edges, n, m);
 	}
 
-	free(graph.array);
+	free(dsu_vertices);
 	free(edges);
-	free(array_ans);
 	return 0;
 }
