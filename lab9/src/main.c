@@ -118,7 +118,7 @@ enum TypeError read_edges(FILE* test_file, Graph* graph) {
 	int column;
 	unsigned int weight;
 	for (int i = 0; i < graph->edges; i++) {
-		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
+		if (fscanf(test_file, "%i%i%u", &line, &column, &weight) == EOF) {
 			return LINES;
 		}
 		if (line < 1 || column < 1 || line > graph->vertices || column > graph->vertices) {
