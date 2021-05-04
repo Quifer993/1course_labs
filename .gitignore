@@ -18,8 +18,4 @@ build/
 *.txt
 *.sln
 *.vcxproj*
-<<<<<<< .gitignore
 .vs
-=======
-.vs
->>>>>>> .gitignore
