@@ -4,7 +4,8 @@
 #include <limits.h>
 
 
-enum WorkWithOstov { INT_MAXX = -3, MAKED = -2, INFINITY = -1, WORKS = 0, OK = 1, OVERFLOW = 2, NO_PATH = 3 };
+enum WorkWithOstov { INT_MAXX = -3, DONE = -2, INF = -1, WORKS = 0, OK = 1, OVERFLOW = 2, NO_PATH = 3 };
+enum TypeError { OK, LINES, VERTEX, LENGTH };
 
 
 typedef struct Edge {
@@ -14,16 +15,22 @@ typedef struct Edge {
 }Edge;
 
 
-typedef struct Node {
-	unsigned int value;
-}Node;
-
-
 typedef struct Graph {
-	Node* matrix;
-	int n;
-	int m;
+	unsigned int* matrix;
+	int vertices;
+	int edges;
 }Graph;
+
+
+unsigned int pop_matrix(const Graph* graph, int line, int column) {
+	return graph->matrix[line * graph->vertices + column];
+}
+
+
+void put_matrix(Graph* graph, int line, int column, int weight) {
+	graph->matrix[line * graph->vertices + column] = weight;
+	graph->matrix[column * graph->vertices + line] = weight;
+}
 
 
 char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
@@ -31,15 +38,17 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	int count_int_max = 0;
 	edges_ans[from].length = 0;
 	edges_ans[from].from = from;
-	edges_ans[from].type = MAKED;
-	Edge min = {from, 0, INFINITY};
+	edges_ans[from].type = DONE;
+	Edge min = {from, 0, INF};
 
-	while (count < graph->n) {
+	while (count < graph->vertices) {
 		char used = 0;
-		for (int j = 0; j < graph->n; j++) {
-			if (graph->matrix[min.from * graph->n + j].value > 0 && edges_ans[j].type > MAKED) {
-				if (graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length <= edges_ans[j].length || edges_ans[j].type == INFINITY) {
-					edges_ans[j].length = graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length;
+		for (int j = 0; j < graph->vertices; j++) {
+			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
+				bool condition = pop_matrix(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
+				unsigned int length_min = edges_ans[min.from].length;
+				if (condition || edges_ans[j].type == INF) {
+					edges_ans[j].length = pop_matrix(graph, min.from, j) + edges_ans[min.from].length;
 					if (edges_ans[j].length > INT_MAX) {
 						edges_ans[j].type = OVERFLOW;
 					}
@@ -48,21 +57,22 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 					}
 					edges_ans[j].from = min.from;
 				}
-				if (graph->matrix[min.from * graph->n + j].value + edges_ans[min.from].length > INT_MAX) {
+				if (pop_matrix(graph, min.from, j) + edges_ans[min.from].length > INT_MAX) {
 					count_int_max++;
 				}
 			}
 		}
 
 		min.length = 0;
-		min.type = INFINITY;
+		min.type = INF;
 		min.from = from;
-		for (int i = 0; i < graph->n; i++) {
-			if (edges_ans[i].length > 0 && (edges_ans[i].length < min.length || min.type == INFINITY) && edges_ans[i].type != MAKED) {
-				if (edges_ans[i].length <= edges_ans[min.from].length || min.from == from) {
+		for (int i = 0; i < graph->vertices; i++) {
+			unsigned int length_now = edges_ans[i].length;
+			if (length_now > 0 && (length_now < min.length || min.type == INF) && edges_ans[i].type != DONE) {
+				if (length_now <= edges_ans[min.from].length || min.from == from) {
 					min.from = i;
 					min.type = WORKS;
-					min.length = edges_ans[i].length;
+					min.length = length_now;
 				}
 				used = 1;
 			}
@@ -74,7 +84,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		}
 		else {
 			edges_ans[min.from].length = min.length;
-			edges_ans[min.from].type = MAKED;
+			edges_ans[min.from].type = DONE;
 		}
 
 		if (used == 0) {
@@ -104,34 +114,26 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 }
 
 
-bool read_edges(FILE* test_file, Graph* graph) {
+enum TypeError read_edges(FILE* test_file, Graph* graph) {
 	int line;
 	int column;
-	unsigned int weight;
-	for (int i = 0; i < graph->m; i++) {
-		if (fscanf(test_file, "%i%i%u", &line, &column, &weight) == EOF) {
-			printf("bad number of lines");
-			return false;
+	int weight;
+	for (int i = 0; i < graph->edges; i++) {
+		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
+			return LINES;
 		}
-
-		if (line < 1 || column < 1 || line > graph->n || column > graph->n) {
-			printf("bad vertex");
-			return false;
+		if (line < 1 || column < 1 || line > graph->vertices || column > graph->vertices) {
+			return VERTEX;
 		}
-
 		if (weight > INT_MAX) {
-			printf("bad length");
-			return false;
+			return LENGTH;
 		}
 
 		line -= 1;
 		column -= 1;
-
-		graph->matrix[line * graph->n + column].value = weight;
-		graph->matrix[column * graph->n + line].value = weight;
+		put_matrix(graph, line, column, weight);
 	}
-
-	return true;
+	return OK;
 }
 
 
@@ -140,7 +142,7 @@ int main() {
 	file = stdin;
 	Graph graph;
 
-	if (fscanf(file, "%i", &graph.n) == EOF) {
+	if (fscanf(file, "%i", &graph.vertices) == EOF) {
 		printf("bad number of lines");
 		fclose(file);
 		return 0;
@@ -154,7 +156,7 @@ int main() {
 		return 0;
 	}
 
-	if (from < 1 || in < 1 || from > graph.n || in > graph.n) {
+	if (from < 1 || in < 1 || from > graph.vertices || in > graph.vertices) {
 		printf("bad vertex");
 		fclose(file);
 		return 0;
@@ -163,14 +165,14 @@ int main() {
 	in--;
 	from--;
 
-	if (fscanf(file, "%i", &graph.m) == EOF) {
+	if (fscanf(file, "%i", &graph.edges) == EOF) {
 		printf("bad number of lines");
 		fclose(file);
 		return 0;
 	}
 
-	if (graph.n <= 0 || graph.n > 5000) {
-		if (graph.n == 0) {
+	if (graph.vertices <= 0 || graph.vertices > 5000) {
+		if (graph.vertices == 0) {
 			printf("oo");
 		}
 		else {
@@ -180,37 +182,38 @@ int main() {
 		return 0;
 	}
 
-	if (graph.m < 0 || graph.m > graph.n * (graph.n + 1) / 2) {
+	if (graph.edges < 0 || graph.edges > graph.vertices * (graph.vertices + 1) / 2) {
 		printf("bad number of edges");
 		fclose(file);
 		return 0;
 	}
 
-	graph.matrix = (Node*)calloc(graph.n * graph.n, sizeof(Node));
+	graph.matrix = (int*)calloc(graph.vertices * graph.vertices, sizeof(int));
 	if (graph.matrix == NULL) {
 		fclose(file);
 		return 0;
 	}
 
-	Edge* edges_ans = (Edge*)malloc((graph.n) * sizeof(Edge));
+	Edge* edges_ans = (Edge*)malloc((graph.vertices) * sizeof(Edge));
 	if (edges_ans == NULL) {
 		free(graph.matrix);
 		fclose(file);
 		return 0;
 	}
-	for (int i = 0; i < graph.n; i++) {
-		edges_ans[i].type = INFINITY;
+	for (int i = 0; i < graph.vertices; i++) {
+		edges_ans[i].type = INF;
 		edges_ans[i].length = 0;
 	}
 
-	if ( read_edges(file, &graph) ) {
-		int result_type = Deikstra(from, in, &graph, edges_ans);
+	enum TypeError is_error = read_edges(file, &graph);
+	if (is_error == OK) {
+		char result_type = Deikstra(from, in, &graph, edges_ans);
 		
-		for (int i = 0; i < graph.n; i++) {
+		for (int i = 0; i < graph.vertices; i++) {
 			if (edges_ans[i].type == OVERFLOW || edges_ans[i].type == INT_MAXX) {
 				printf("INT_MAX+ ");
 			}
-			else if (edges_ans[i].type == INFINITY) {
+			else if (edges_ans[i].type == INF) {
 				printf("oo ");
 			}
 			else {
@@ -235,6 +238,15 @@ int main() {
 		else {
 			printf("overflow");
 		}
+	}
+	else if (is_error == LINES) {
+		printf("bad number of lines");
+	}
+	else if (is_error == VERTEX) {
+		printf("bad vertex");
+	}
+	else if (is_error == LENGTH) {
+		printf("bad length");
 	}
 	
 	free(graph.matrix);
