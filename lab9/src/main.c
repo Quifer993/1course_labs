@@ -5,7 +5,7 @@
 
 
 enum WorkWithOstov { INT_MAXX = -3, DONE = -2, INF = -1, WORKS = 0, OK = 1, OVERFLOW = 2, NO_PATH = 3 };
-enum TypeError { OK, LINES, VERTEX, LENGTH };
+enum TypeError { PASS, LINES, VERTEX, LENGTH };
 
 
 typedef struct Edge {
@@ -27,7 +27,7 @@ unsigned int pop_matrix(const Graph* graph, int line, int column) {
 }
 
 
-void put_matrix(Graph* graph, int line, int column, int weight) {
+void put_matrix(Graph* graph, int line, int column, unsigned int weight) {
 	graph->matrix[line * graph->vertices + column] = weight;
 	graph->matrix[column * graph->vertices + line] = weight;
 }
@@ -46,7 +46,6 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		for (int j = 0; j < graph->vertices; j++) {
 			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
 				bool condition = pop_matrix(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
-				unsigned int length_min = edges_ans[min.from].length;
 				if (condition || edges_ans[j].type == INF) {
 					edges_ans[j].length = pop_matrix(graph, min.from, j) + edges_ans[min.from].length;
 					if (edges_ans[j].length > INT_MAX) {
@@ -117,7 +116,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 enum TypeError read_edges(FILE* test_file, Graph* graph) {
 	int line;
 	int column;
-	int weight;
+	unsigned int weight;
 	for (int i = 0; i < graph->edges; i++) {
 		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
 			return LINES;
@@ -133,7 +132,7 @@ enum TypeError read_edges(FILE* test_file, Graph* graph) {
 		column -= 1;
 		put_matrix(graph, line, column, weight);
 	}
-	return OK;
+	return PASS;
 }
 
 
@@ -188,7 +187,7 @@ int main() {
 		return 0;
 	}
 
-	graph.matrix = (int*)calloc(graph.vertices * graph.vertices, sizeof(int));
+	graph.matrix = (unsigned int*)calloc(graph.vertices * graph.vertices, sizeof(unsigned int));
 	if (graph.matrix == NULL) {
 		fclose(file);
 		return 0;
@@ -206,7 +205,7 @@ int main() {
 	}
 
 	enum TypeError is_error = read_edges(file, &graph);
-	if (is_error == OK) {
+	if (is_error == PASS) {
 		char result_type = Deikstra(from, in, &graph, edges_ans);
 		
 		for (int i = 0; i < graph.vertices; i++) {
