@@ -4,7 +4,8 @@
 #include <limits.h>
 
 
-enum Inf{ INFINITY = -2, MAKED = -1};
+enum Inf{ INFINITY = -2, DONE = -1};
+enum TypeError{ INFINITY = 0, DONE = -1};
 
 
 typedef struct Edge {
@@ -19,26 +20,26 @@ typedef struct Node {
 
 
 typedef struct Graph {
-	Node* array;
-	int n;
-	int m;
+	int* matrix;
+	int vertices;
+	int edges;
 } Graph;
 
 
 bool prim(const Graph* graph, Edge* edges_ans) {
 	int count = 1;
-	edges_ans[0].length = MAKED;
+	edges_ans[0].length = DONE;
 	edges_ans[0].from = 0;
 	Edge min;
 	min.length = INFINITY;
 	min.from = 0;
 
-	while (count < graph->n) {
-		char used = 0;
-		for (int j = 0; j < graph->n; j++) {
-			if (graph->array[min.from * graph->n + j].value > 0 && edges_ans[j].length != MAKED) {
-				if (graph->array[min.from * graph->n + j].value < edges_ans[j].length || edges_ans[j].length == INFINITY) {
-					edges_ans[j].length = graph->array[min.from * graph->n + j].value;
+	while (count < graph->vertices) {
+		bool used = false;
+		for (int j = 0; j < graph->vertices; j++) {
+			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].length != DONE) {
+				if (graph->matrix[min.from * graph->vertices + j] < edges_ans[j].length || edges_ans[j].length == INFINITY) {
+					edges_ans[j].length = graph->matrix[min.from * graph->vertices + j] ;
 					edges_ans[j].from = min.from;
 				}
 			}
@@ -46,18 +47,18 @@ bool prim(const Graph* graph, Edge* edges_ans) {
 	
 		min.length = INFINITY;
 		min.from = 0;
-		for (int i = 0; i < graph->n; i++) {
+		for (int i = 0; i < graph->vertices; i++) {
 			if ( (edges_ans[i].length > 0 && edges_ans[i].length < min.length) || (min.length == INFINITY && edges_ans[i].length > 0)) {
 				if (edges_ans[i].length < edges_ans[min.from].length || min.from == 0) {
 					min.from = i;
 				}
-				used = 1;
+				used = true;
 			}
 		}
 
-		edges_ans[min.from].length = MAKED;
-		if (used == 0) {
-			return false;
+		edges_ans[min.from].length = DONE;
+		if (used == false) {
+			return used;
 		}
 		count++;
 	}
@@ -66,31 +67,35 @@ bool prim(const Graph* graph, Edge* edges_ans) {
 }
 
 
+void put_to_matrix(Graph* graph,int line, int column, int weight) {
+	graph->matrix[line * graph->vertices + column] = weight;
+	graph->matrix[column * graph->vertices + line] = weight;
+}
+
+
 bool input_edges(FILE* test_file, Graph* graph) {
 	int line;
 	int column;
 	int weight;
-	for (int i = 0; i < graph->m; i++) {
+	for (int i = 0; i < graph->edges; i++) {
 		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
 			printf("bad number of lines");
-			return 0;
+			return false;
 		}
 
-		if (line < 1 || column < 1 || line > graph->n || column > graph->n) {
+		if (line < 1 || column < 1 || line > graph->vertices || column > graph->vertices) {
 			printf("bad vertex");
-			return 0;
+			return false;
 		}
 
 		if (weight > INT_MAX || weight < 0) {
 			printf("bad length");
-			return 0;
+			return false;
 		}
 
 		line -= 1;
 		column -= 1;
-
-		graph->array[line * graph->n + column].value = weight;
-		graph->array[column * graph->n + line].value = weight;
+		put_to_matrix(graph, line, column, weight);
 	}
 	return true;
 }
@@ -101,20 +106,20 @@ int main() {
 	file = stdin;
 	Graph graph; 
 
-	if (fscanf(file, "%i", &graph.n) == EOF) {
+	if (fscanf(file, "%i", &graph.vertices) == EOF) {
 		printf("bad number of lines");
 		fclose(file);
 		return 0;
 	}
 
-	if (fscanf(file, "%i", &graph.m) == EOF) {
+	if (fscanf(file, "%i", &graph.edges) == EOF) {
 		printf("bad number of lines");
 		fclose(file);
 		return 0;
 	}
 
-	if (graph.n <= 0 || graph.n > 5000) {
-		if (graph.n == 0) {
+	if (graph.vertices <= 0 || graph.vertices > 5000) {
+		if (graph.vertices == 0) {
 			printf("no spanning tree");
 		}
 		else {
@@ -124,40 +129,40 @@ int main() {
 
 	}
 
-	if (graph.m < 0 || graph.m > graph.n * (graph.n + 1) / 2) {
+	if (graph.edges < 0 || graph.edges > graph.vertices * (graph.vertices + 1) / 2) {
 		printf("bad number of edges");
 		fclose(file);
 		return 0;
 	}
 
-	graph.array = (Node*)calloc(graph.n * graph.n, sizeof(Node));
-	if (graph.array == NULL) {
+	graph.matrix = (int*)calloc(graph.vertices * graph.vertices, sizeof(int));
+	if (graph.matrix == NULL) {
 		fclose(file);
 		return 0;
 	}
 
-	Edge* edges_ans = (Edge*)malloc((graph.n) * sizeof(Edge));
+	Edge* edges_ans = (Edge*)malloc((graph.vertices) * sizeof(Edge));
 	if (edges_ans == NULL) {
-		free(graph.array);
+		free(graph.matrix);
 		fclose(file);
 		return 0;
 	}
-	for (int i = 0; i < graph.n; i++) {
+	for (int i = 0; i < graph.vertices; i++) {
 		edges_ans[i].length = INFINITY;
 	}
 
 	if ( input_edges(file, &graph) ) {
 		if ( prim(&graph, edges_ans) ) {
-			for (int i = 1; i < graph.n; i++) {
+			for (int i = 1; i < graph.vertices; i++) {
 				printf("%i %i\n", edges_ans[i].from + 1, i + 1);
 			}
 		}
 		else{
-            printf("no spanning tree");
+			printf("no spanning tree");
 		}
 	}	
 
-	free(graph.array);
+	free(graph.matrix);
 	free(edges_ans);
 	fclose(file);
 	return 0;
