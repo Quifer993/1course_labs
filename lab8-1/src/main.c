@@ -5,7 +5,7 @@
 
 
 enum Inf{ INFINITY = -2, DONE = -1};
-enum TypeError{ INFINITY = 0, DONE = -1};
+enum TypeError { OK, LINES, VERTEX, LENGTH };
 
 
 typedef struct Edge {
@@ -14,16 +14,22 @@ typedef struct Edge {
 } Edge;
 
 
-typedef struct Node {
-	int value;
-} Node;
-
-
 typedef struct Graph {
 	int* matrix;
 	int vertices;
 	int edges;
 } Graph;
+
+
+int pop_matrix(Graph* graph, int line, int column) {
+	return graph->matrix[line * graph->vertices + column];
+}
+
+
+void put_matrix(Graph* graph, int line, int column, int weight) {
+	graph->matrix[line * graph->vertices + column] = weight;
+	graph->matrix[column * graph->vertices + line] = weight;
+}
 
 
 bool prim(const Graph* graph, Edge* edges_ans) {
@@ -37,9 +43,10 @@ bool prim(const Graph* graph, Edge* edges_ans) {
 	while (count < graph->vertices) {
 		bool used = false;
 		for (int j = 0; j < graph->vertices; j++) {
-			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].length != DONE) {
-				if (graph->matrix[min.from * graph->vertices + j] < edges_ans[j].length || edges_ans[j].length == INFINITY) {
-					edges_ans[j].length = graph->matrix[min.from * graph->vertices + j] ;
+			int lenght_now = edges_ans[j].length;
+			if (pop_matrix(graph, min.from, j) > 0 && lenght_now != DONE) {
+				if (pop_matrix(graph, min.from, j) < lenght_now || lenght_now == INFINITY) {
+					edges_ans[j].length = pop_matrix(graph, min.from, j) ;
 					edges_ans[j].from = min.from;
 				}
 			}
@@ -48,8 +55,9 @@ bool prim(const Graph* graph, Edge* edges_ans) {
 		min.length = INFINITY;
 		min.from = 0;
 		for (int i = 0; i < graph->vertices; i++) {
-			if ( (edges_ans[i].length > 0 && edges_ans[i].length < min.length) || (min.length == INFINITY && edges_ans[i].length > 0)) {
-				if (edges_ans[i].length < edges_ans[min.from].length || min.from == 0) {
+			int lenght_now = edges_ans[i].length;
+			if ( (lenght_now > 0 && lenght_now < min.length) || (min.length == INFINITY && lenght_now > 0)) {
+				if (lenght_now < edges_ans[min.from].length || min.from == 0) {
 					min.from = i;
 				}
 				used = true;
@@ -67,37 +75,28 @@ bool prim(const Graph* graph, Edge* edges_ans) {
 }
 
 
-void put_to_matrix(Graph* graph,int line, int column, int weight) {
-	graph->matrix[line * graph->vertices + column] = weight;
-	graph->matrix[column * graph->vertices + line] = weight;
-}
-
-
-bool input_edges(FILE* test_file, Graph* graph) {
+enum TypeError input_edges(FILE* test_file, Graph* graph) {
 	int line;
 	int column;
 	int weight;
 	for (int i = 0; i < graph->edges; i++) {
 		if (fscanf(test_file, "%i%i%i", &line, &column, &weight) == EOF) {
-			printf("bad number of lines");
-			return false;
+			return LINES;
 		}
 
 		if (line < 1 || column < 1 || line > graph->vertices || column > graph->vertices) {
-			printf("bad vertex");
-			return false;
+			return VERTEX;
 		}
 
 		if (weight > INT_MAX || weight < 0) {
-			printf("bad length");
-			return false;
+			return LENGTH;
 		}
 
 		line -= 1;
 		column -= 1;
-		put_to_matrix(graph, line, column, weight);
+		put_matrix(graph, line, column, weight);
 	}
-	return true;
+	return OK;
 }
 
 
@@ -151,7 +150,8 @@ int main() {
 		edges_ans[i].length = INFINITY;
 	}
 
-	if ( input_edges(file, &graph) ) {
+	int is_error = input_edges(file, &graph);
+	if (is_error == OK) {
 		if ( prim(&graph, edges_ans) ) {
 			for (int i = 1; i < graph.vertices; i++) {
 				printf("%i %i\n", edges_ans[i].from + 1, i + 1);
@@ -161,6 +161,15 @@ int main() {
 			printf("no spanning tree");
 		}
 	}	
+	else if (is_error == LINES) {
+		printf("bad number of lines");
+	}
+	else if (is_error == VERTEX) {
+		printf("bad vertex");
+	}
+	else if (is_error == LENGTH) {
+		printf("bad length");
+	}
 
 	free(graph.matrix);
 	free(edges_ans);
