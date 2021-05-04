@@ -21,7 +21,7 @@ typedef struct Graph {
 } Graph;
 
 
-int pop_matrix(Graph* graph, int line, int column) {
+int pop_matrix(const Graph* graph, int line, int column) {
 	return graph->matrix[line * graph->vertices + column];
 }
 
