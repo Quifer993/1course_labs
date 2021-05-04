@@ -23,7 +23,7 @@ int compare_edges(const void* ptr_left, const void* ptr_right) {
 }
 
 
-int check_parents(Dsu* dsu_vertices, Edge* edges_ans, int n) {
+int check_parents(Dsu* dsu_vertices, int n) {
 	int parents = 0;
 	for (int i = 0; i < n; i++) {
 		if (dsu_vertices[i].parent == i) {
@@ -63,7 +63,7 @@ Edge* alg_kraskal(Dsu* dsu_vertices, Edge* edges, int n, int m) {
 
 	Edge* edges_ans = (Edge*)malloc((n - 1) * sizeof(Edge));
 	if (edges_ans == NULL) {
-		return;
+		return NULL;
 	}
 
 	for (int i = 0; i < m; i++) {
@@ -73,7 +73,7 @@ Edge* alg_kraskal(Dsu* dsu_vertices, Edge* edges, int n, int m) {
 		}
 	}
 
-	if (check_parents(dsu_vertices, edges_ans, n) != 1) {
+	if (check_parents(dsu_vertices, n) != 1) {
 		free(edges_ans);
 		edges_ans = NULL;
 	}
