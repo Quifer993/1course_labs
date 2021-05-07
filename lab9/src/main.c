@@ -40,7 +40,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	edges_ans[from].from = from;
 	edges_ans[from].type = DONE;
 	edges_ans[from].ways = 1;
-	Edge min = {from, 0, INF};
+	Edge min = {from, 0, 0, INF};
 
 	while (count < graph->vertices) {
 		char used = 0;
