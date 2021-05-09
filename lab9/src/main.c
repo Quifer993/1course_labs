@@ -4,14 +4,13 @@
 #include <limits.h>
 
 
-enum WorkWithOstov { INT_MAXX = -3, DONE = -2, INF = -1, OK = 0, WORKS = 1, OVERFLOW = 2, NO_PATH = 3 };
+enum WorkWithOstov { OK = 0, NO_PATH = 1, INT_MAXX = 2, OVERFLOW = 3, DONE = 4, WORKS = 5, INF = 6 };
 enum TypeError { PASS, LINES, VERTEX, LENGTH };
 
 
 typedef struct Edge {
 	int from;
 	unsigned int length;
-	int ways;
 	char type;
 }Edge;
 
@@ -36,17 +35,20 @@ void put_matrix(Graph* graph, int line, int column, unsigned int weight) {
 
 char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	int count = 1;
+	bool is_one_ways = true;
 	edges_ans[from].length = 0;
 	edges_ans[from].from = from;
 	edges_ans[from].type = DONE;
-	edges_ans[from].ways = 1;
-	Edge min = {from, 0, 0, INF};
+	Edge min = {from, 0, INF};
 
+	int before = from;
 	while (count < graph->vertices) {
 		char used = 0;
 		for (int j = 0; j < graph->vertices; j++) {
-			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
-				edges_ans[j].ways += edges_ans[min.from].ways;
+			if (edges_ans[j].type <= DONE && before != j && j != min.from && count < graph->edges) {
+				is_one_ways = false;
+			}
+			else if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
 				bool condition = pop_matrix(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
 				if (condition || edges_ans[j].type == INF) {
 					edges_ans[j].length = pop_matrix(graph, min.from, j) + edges_ans[min.from].length;
@@ -61,6 +63,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 			}
 		}
 
+		before = min.from;
 		min.length = 0;
 		min.type = INF;
 		min.from = from;
@@ -96,8 +99,8 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		count++;
 	}
 
-	if (edges_ans[in].ways > 1 && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
-		return OVERFLOW;//другое условие
+	if (!is_one_ways && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
+		return OVERFLOW;
 
 	int point = in;
 	while (edges_ans[point].from != from) {
@@ -201,7 +204,6 @@ int main() {
 	for (int i = 0; i < graph.vertices; i++) {
 		edges_ans[i].type = INF;
 		edges_ans[i].length = 0;
-		edges_ans[i].ways = 0;
 	}
 
 	enum TypeError is_error = read_edges(file, &graph);
