@@ -105,6 +105,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	}
 
 	bool is_overflow = is_in_overflow && !is_one_ways;
+	is_in_overflow = false;
 
 	if (is_overflow && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
 		return OVERFLOW;
