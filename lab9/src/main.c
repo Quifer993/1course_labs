@@ -41,6 +41,7 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 	edges_ans[from].type = DONE;
 	Edge min = {from, 0, INF};
 
+	bool is_in_overflow = false;
 	int before = from;
 	while (count < graph->vertices) {
 		char used = 0;
@@ -88,6 +89,10 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 			edges_ans[min.from].type = DONE;
 		}
 
+		if (min.from == in && edges_ans[min.from].type == INT_MAXX) {
+			is_in_overflow = true;
+		}
+
 		if (used == 0) {
 			if (from != in) {
 				return NO_PATH;
@@ -99,7 +104,9 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		count++;
 	}
 
-	if (!is_one_ways && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
+	bool is_overflow = is_in_overflow && !is_one_ways;
+
+	if (is_overflow && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
 		return OVERFLOW;
 
 	int point = in;
