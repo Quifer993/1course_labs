@@ -29,8 +29,13 @@ typedef struct Graph {
 }Graph;
 
 
-unsigned int pop_matrix(const Graph* graph, int line, int column) {
+unsigned int pop_matrix_value(const Graph* graph, int line, int column) {
 	return graph->matrix[line * graph->vertices + column].value;
+}
+
+
+unsigned int pop_matrix_type(const Graph* graph, int line, int column) {
+	return graph->matrix[line * graph->vertices + column].type;
 }
 
 
@@ -54,16 +59,7 @@ bool is_cicle(Graph *graph, Edge* full, Edge* edges_min, int vertex, int start) 
 	}
 
 	for (int j = 0; j < graph->vertices; j++) {
-		if (graph->matrix[vertex * graph->vertices + j].type == EXIST /*&& graph->matrix[vertex/*edges_min[vertex].from// * graph->vertices + j].value > 0*/) {
-			/*if (full) {
-				if (j == start) {
-					continue;
-				}
-				else {
-					return false;
-				}
-			}*/
-
+		if (pop_matrix_type(graph, vertex, j) == EXIST) {
 			put_status_del(graph, vertex, j);
 			if ( is_cicle(graph, full, edges_min, j, start) ) {
 				return true;
@@ -81,14 +77,13 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 	edges_ans[from].type = DONE;
 	Edge min = {from, 0, INF};
 
-	int before = from;
 	while (count < graph->vertices) {
 		char used = 0;
 		for (int j = 0; j < graph->vertices; j++) {
 			if (graph->matrix[min.from * graph->vertices + j].value > 0 && edges_ans[j].type > DONE) {
-				bool condition = pop_matrix(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
+				bool condition = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
 				if (condition || edges_ans[j].type == INF) {
-					edges_ans[j].length = pop_matrix(graph, min.from, j) + edges_ans[min.from].length;
+					edges_ans[j].length = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length;
 					if (edges_ans[j].length > INT_MAX) {
 						edges_ans[j].type = OVERFLOW;
 					}
@@ -100,7 +95,6 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 			}
 		}
 
-		before = min.from;
 		min.length = 0;
 		min.type = INF;
 		min.from = from;
@@ -158,7 +152,7 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 		bool is_one_ways = true;
 		for (int i = 0; is_one_ways && i < ways_min - 1; i++) {
 			for (int j = 0; j < graph->vertices; j++) {
-				if (graph->matrix[edges_min[i].from * graph->vertices + j].type == EXIST && graph->matrix[edges_min[i].from * graph->vertices + j].value > 0) {
+				if (pop_matrix_type(graph, edges_min[i].from, j) == EXIST) {
 					put_status_del(graph, edges_min[i].from, j);
 					if (is_cicle(graph, full, edges_min, j, edges_min[i].from)) {
 						is_one_ways = false;
