@@ -4,7 +4,8 @@
 #include <limits.h>
 
 
-enum WorkWithOstov { INT_MAXX = -3, DONE = -2, INF = -1, WORKS = 0, OK = 1, OVERFLOW = 2, NO_PATH = 3 };
+enum WorkWithOstov { OK = 0, NO_PATH = 1, INT_MAXX = 2, OVERFLOW = 3, DONE = 4, WORKS = 5, INF = 6, DEL = 7 };
+enum WorkWithOver { WHITE = 0, BLACK = 1, MAIN = 2 };
 enum TypeError { PASS, LINES, VERTEX, LENGTH };
 
 
@@ -16,26 +17,46 @@ typedef struct Edge {
 
 
 typedef struct Graph {
-	unsigned int* matrix;
 	int vertices;
 	int edges;
+	unsigned int* matrix;
 }Graph;
 
 
-unsigned int pop_matrix(const Graph* graph, int line, int column) {
+unsigned int pop_matrix_value(const Graph* graph, int line, int column) {
 	return graph->matrix[line * graph->vertices + column];
 }
 
 
 void put_matrix(Graph* graph, int line, int column, unsigned int weight) {
 	graph->matrix[line * graph->vertices + column] = weight;
-	graph->matrix[column * graph->vertices + line] = weight;
+	graph->matrix[column * graph->vertices + line] = weight;	
 }
 
 
-char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
+bool is_cicle(Graph *graph, Edge* full, Edge* edges_min, int vertex, int start) {
+	if (full[vertex].type == MAIN) {
+		if (vertex != start) {
+			return true;
+		}
+		return false;
+	}
+
+	full[vertex].type = BLACK;
+	for (int j = 0; j < graph->vertices; j++) {
+
+		if (pop_matrix_value(graph, vertex, j) > 0 && full[j].type != BLACK) {
+			if ( is_cicle(graph, full, edges_min, j, start) ) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 	int count = 1;
-	int count_int_max = 0;
 	edges_ans[from].length = 0;
 	edges_ans[from].from = from;
 	edges_ans[from].type = DONE;
@@ -45,9 +66,9 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		char used = 0;
 		for (int j = 0; j < graph->vertices; j++) {
 			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
-				bool condition = pop_matrix(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
+				bool condition = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
 				if (condition || edges_ans[j].type == INF) {
-					edges_ans[j].length = pop_matrix(graph, min.from, j) + edges_ans[min.from].length;
+					edges_ans[j].length = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length;
 					if (edges_ans[j].length > INT_MAX) {
 						edges_ans[j].type = OVERFLOW;
 					}
@@ -55,9 +76,6 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 						edges_ans[j].type = WORKS;			
 					}
 					edges_ans[j].from = min.from;
-				}
-				if (pop_matrix(graph, min.from, j) + edges_ans[min.from].length > INT_MAX) {
-					count_int_max++;
 				}
 			}
 		}
@@ -97,8 +115,47 @@ char Deikstra(int from, int in, const Graph* graph, Edge* edges_ans) {
 		count++;
 	}
 
-	if (count_int_max > 1 && (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) )
-		return OVERFLOW;
+	if (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) {
+		
+		int pointer = in;
+		int ways_min = 2;
+		while (edges_ans[pointer].from != from) {
+			ways_min++;
+			pointer = edges_ans[pointer].from;
+		}
+
+		Edge* edges_min = (Edge*)malloc(ways_min * sizeof(Edge));
+		Edge *full = (Edge*)calloc(graph->vertices, sizeof(Edge));
+
+		pointer = in;
+		for (int i = ways_min - 2; i >= 0; i--) {
+			full[pointer].type = MAIN;
+			edges_min[i].from = edges_ans[pointer].from;
+			pointer = edges_ans[pointer].from;
+		}
+		edges_min[ways_min - 1].from = in;
+
+		bool is_one_ways = true;
+		for (int i = 0; is_one_ways && i < ways_min - 1; i++) {
+			if (full[edges_min[i].from].type != BLACK) {
+				full[edges_min[i].from].type = BLACK;
+				for (int j = 0; j < graph->vertices; j++) {
+					bool is_neighbor = (j == edges_min[i + 1].from);
+					if (pop_matrix_value(graph, edges_min[i].from, j) > 0 && full[j].type != BLACK && !is_neighbor) {
+						if (is_cicle(graph, full, edges_min, j, edges_min[i].from)) {
+							is_one_ways = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		free(edges_min);
+		free(full);
+		if(!is_one_ways)
+			return OVERFLOW;
+	}
 
 	int point = in;
 	while (edges_ans[point].from != from) {
