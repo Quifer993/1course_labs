@@ -23,9 +23,9 @@ typedef struct Node {
 
 
 typedef struct Graph {
-	Node* matrix;
 	int vertices;
 	int edges;
+	Node* matrix;
 }Graph;
 
 
