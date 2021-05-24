@@ -4,7 +4,7 @@
 #include <limits.h>
 
 
-enum WorkWithOstov { OK = 0, NO_PATH = 1, INT_MAXX = 2, OVERFLOW = 3, DONE = 4, WORKS = 5, INF = 6, DEL = 7, EXIST = 8, OVER = 9, DO = 10 };
+enum WorkWithOstov { OK = 0, NO_PATH = 1, INT_MAXX = 2, OVERFLOW = 3, DONE = 4, WORKS = 5, INF = 6, DEL = 7 };
 enum WorkWithOver { WHITE = 0, BLACK = 1, MAIN = 2 };
 enum TypeError { PASS, LINES, VERTEX, LENGTH };
 
@@ -16,51 +16,36 @@ typedef struct Edge {
 }Edge;
 
 
-typedef struct Node {
-	unsigned int value;
-	char type;
-}Node;
-
-
 typedef struct Graph {
 	int vertices;
 	int edges;
-	Node* matrix;
+	unsigned int* matrix;
 }Graph;
 
 
 unsigned int pop_matrix_value(const Graph* graph, int line, int column) {
-	return graph->matrix[line * graph->vertices + column].value;
-}
-
-
-char pop_matrix_type(const Graph* graph, int line, int column) {
-	return graph->matrix[line * graph->vertices + column].type;
+	return graph->matrix[line * graph->vertices + column];
 }
 
 
 void put_matrix(Graph* graph, int line, int column, unsigned int weight) {
-	graph->matrix[line * graph->vertices + column].value = weight;
-	graph->matrix[line * graph->vertices + column].type = EXIST;
-	graph->matrix[column * graph->vertices + line].value = weight;
-	graph->matrix[column * graph->vertices + line].type = EXIST;
-}
-
-
-void put_status_del(Graph* graph, int column, int string) {
-	graph->matrix[string * graph->vertices + column].type = DEL;
-	graph->matrix[column * graph->vertices + string].type = DEL;
+	graph->matrix[line * graph->vertices + column] = weight;
+	graph->matrix[column * graph->vertices + line] = weight;	
 }
 
 
 bool is_cicle(Graph *graph, Edge* full, Edge* edges_min, int vertex, int start) {
-	if (full[vertex].type == MAIN && vertex != start) {
-		return true;
+	if (full[vertex].type == MAIN) {
+		if (vertex != start) {
+			return true;
+		}
+		return false;
 	}
 
+	full[vertex].type = BLACK;
 	for (int j = 0; j < graph->vertices; j++) {
-		if (pop_matrix_type(graph, vertex, j) == EXIST) {
-			put_status_del(graph, vertex, j);
+
+		if (pop_matrix_value(graph, vertex, j) > 0 && full[j].type != BLACK) {
 			if ( is_cicle(graph, full, edges_min, j, start) ) {
 				return true;
 			}
@@ -80,7 +65,7 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 	while (count < graph->vertices) {
 		char used = 0;
 		for (int j = 0; j < graph->vertices; j++) {
-			if (graph->matrix[min.from * graph->vertices + j].value > 0 && edges_ans[j].type > DONE) {
+			if (graph->matrix[min.from * graph->vertices + j] > 0 && edges_ans[j].type > DONE) {
 				bool condition = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length <= edges_ans[j].length;
 				if (condition || edges_ans[j].type == INF) {
 					edges_ans[j].length = pop_matrix_value(graph, min.from, j) + edges_ans[min.from].length;
@@ -131,6 +116,7 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 	}
 
 	if (edges_ans[in].type == OVERFLOW || edges_ans[in].type == INT_MAXX) {
+		
 		int pointer = in;
 		int ways_min = 2;
 		while (edges_ans[pointer].from != from) {
@@ -143,20 +129,23 @@ char Deikstra(int from, int in, Graph* graph, Edge* edges_ans) {
 
 		pointer = in;
 		for (int i = ways_min - 2; i >= 0; i--) {
-			put_status_del(graph, edges_ans[pointer].from, pointer);
 			full[pointer].type = MAIN;
 			edges_min[i].from = edges_ans[pointer].from;
 			pointer = edges_ans[pointer].from;
 		}
+		edges_min[ways_min - 1].from = in;
 
 		bool is_one_ways = true;
 		for (int i = 0; is_one_ways && i < ways_min - 1; i++) {
-			for (int j = 0; j < graph->vertices; j++) {
-				if (pop_matrix_type(graph, edges_min[i].from, j) == EXIST) {
-					put_status_del(graph, edges_min[i].from, j);
-					if (is_cicle(graph, full, edges_min, j, edges_min[i].from)) {
-						is_one_ways = false;
-						break;
+			if (full[edges_min[i].from].type != BLACK) {
+				full[edges_min[i].from].type = BLACK;
+				for (int j = 0; j < graph->vertices; j++) {
+					bool is_neighbor = (j == edges_min[i + 1].from);
+					if (pop_matrix_value(graph, edges_min[i].from, j) > 0 && full[j].type != BLACK && !is_neighbor) {
+						if (is_cicle(graph, full, edges_min, j, edges_min[i].from)) {
+							is_one_ways = false;
+							break;
+						}
 					}
 				}
 			}
@@ -255,7 +244,7 @@ int main() {
 		return 0;
 	}
 
-	graph.matrix = (Node*)calloc(graph.vertices * graph.vertices, sizeof(Node));
+	graph.matrix = (unsigned int*)calloc(graph.vertices * graph.vertices, sizeof(unsigned int));
 	if (graph.matrix == NULL) {
 		fclose(file);
 		return 0;
