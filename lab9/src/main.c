@@ -34,7 +34,7 @@ unsigned int pop_matrix_value(const Graph* graph, int line, int column) {
 }
 
 
-unsigned int pop_matrix_type(const Graph* graph, int line, int column) {
+char pop_matrix_type(const Graph* graph, int line, int column) {
 	return graph->matrix[line * graph->vertices + column].type;
 }
 
